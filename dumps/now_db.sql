@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict SAhiEDswUYIlmNdSB0Tjh8YeaCGHgVFXtPzej3aTXoSXc7TCCQl6zPhWUcREiMv
+\restrict l4YFlLaN5poWtREa74ooJUAIKuZKS05NL71TTwZrgPzKsIIRnHSGHDBHFtgIX60
 
 -- Dumped from database version 18.0
 -- Dumped by pg_dump version 18.0
@@ -70,6 +70,7 @@ ALTER TABLE ONLY public.usuarios ALTER COLUMN id SET DEFAULT nextval('public.usu
 
 COPY public.usuarios (id, nombre) FROM stdin;
 1	Patricio
+2	Mateo
 \.
 
 
@@ -77,7 +78,7 @@ COPY public.usuarios (id, nombre) FROM stdin;
 -- Name: usuarios_id_seq; Type: SEQUENCE SET; Schema: public; Owner: patricio
 --
 
-SELECT pg_catalog.setval('public.usuarios_id_seq', 1, true);
+SELECT pg_catalog.setval('public.usuarios_id_seq', 2, true);
 
 
 --
@@ -92,5 +93,5 @@ ALTER TABLE ONLY public.usuarios
 -- PostgreSQL database dump complete
 --
 
-\unrestrict SAhiEDswUYIlmNdSB0Tjh8YeaCGHgVFXtPzej3aTXoSXc7TCCQl6zPhWUcREiMv
+\unrestrict l4YFlLaN5poWtREa74ooJUAIKuZKS05NL71TTwZrgPzKsIIRnHSGHDBHFtgIX60
 
