@@ -67,3 +67,5 @@ logfile
 meson.build
 meson_options.txt
 src/
+
+node_modules/
