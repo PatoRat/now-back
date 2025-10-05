@@ -1,0 +1,5 @@
+node_modules/
+dist/
+*.env*
+
+curl_command.ps1
