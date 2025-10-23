@@ -17,19 +17,19 @@ model User {
 }
 
 model Event {
-  id          Int      @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   nombre      String
   descripcion String
   direccion   String
-  imagenes    Imagen[]
-  fecha       DateTime
-  duracion    Int
-  creador     User?    @relation("EventosCreados", fields: [userId], references: [id])
+  imagenes    ImagenDeEvento[]
+  fechaInicio DateTime
+  fechaFin    DateTime
+  creador     User?            @relation("EventosCreados", fields: [userId], references: [id])
   userId      Int?
-  fans        User[]   @relation("EventosFavoritos")
+  fans        User[]           @relation("EventosFavoritos")
 }
 
-model Imagen {
+model ImagenDeEvento {
   id      Int    @id @default(autoincrement())
   url     String // Si es URL o vamos a implementar librerías de procesamiento de imagenes despues lo vemos
   eventId Int
