@@ -1,23 +1,18 @@
 import { PrismaClient } from "@prisma/client";
+import { UserData } from "../types";
 
 const getUsers = async (prisma: PrismaClient) => {
     return await prisma.user.findMany();
 }
 
-// const postUser = async (
-//     prisma: PrismaClient,
-//     titulo: string,
-//     imagenURL: string,
-//     descripcion: string,
-//     precio: string) => {
-//     return await prisma.user.create({
-//         data: {
-//             titulo,
-//             imagenURL,
-//             descripcion,
-//             precio,
-//         },
-//     });
-// }
+const postUser = async (
+    prisma: PrismaClient,
+    datos: UserData) => {
+    return await prisma.user.create({
+        data: {
+            ...datos
+        },
+    });
+}
 
 export { getUsers, postUser };

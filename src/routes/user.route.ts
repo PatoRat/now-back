@@ -1,8 +1,9 @@
-import { type PrismaClient, type Prisma } from "@prisma/client"
+import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
 import { getUsers, postUser } from '../controllers/UserController'
+import { UserData } from "../types";
 
-const ProductRoute = (prisma: PrismaClient) => {
+const UserRoute = (prisma: PrismaClient) => {
     const router = Router();
 
     router.get('/', async (req, res) => {
@@ -12,8 +13,8 @@ const ProductRoute = (prisma: PrismaClient) => {
     });
 
     router.post('/create', async (req, res) => {
-        const { titulo, imagenURL, descripcion, precio } = req.body
-        const result = await postUser(prisma, titulo, imagenURL, descripcion, precio);
+        const datos: UserData = req.body;
+        const result = await postUser(prisma, datos);
         console.log(result);
         res.json(result)
     });
@@ -22,5 +23,4 @@ const ProductRoute = (prisma: PrismaClient) => {
 }
 
 
-
-export default ProductRoute;
+export default UserRoute;

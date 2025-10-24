@@ -6,8 +6,8 @@ import { type Express } from "express"
 
 const addRoutes = (app: Express, prisma: PrismaClient) => {
     app.use('/events/', EventRoute(prisma));
-    app.use('/users/', EventRoute(prisma));
-    app.use('/images/', EventRoute(prisma));
+    app.use('/users/', UserRoute(prisma));
+    app.use('/images/', ImagenRoute(prisma));
 }
 
 export default addRoutes
