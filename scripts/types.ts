@@ -1,8 +1,8 @@
 type EventData = {
-    nombre: string,
+    token: string,
+    titulo: string,
     descripcion: string,
     direccion: string,
-    creadorEmail: string,
     fechaInicio: Date,
     fechaFin: Date
 }
