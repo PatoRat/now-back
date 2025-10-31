@@ -12,20 +12,26 @@ const getEventsFiltered = async (prisma: PrismaClient) => {
     return eventosFiltrados;
 }
 
+const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
+    return await prisma.ubicacion.findUnique({
+        where: { eventId: eventId }
+    });
+}
+
 const postEvent = async (
     prisma: PrismaClient,
     datos: EventData,
     creadorId: number ) => {
     return await prisma.event.create({
         data: {
-            nombre: datos.titulo,
+            titulo: datos.titulo,
             descripcion: datos.descripcion,
-            direccion: datos.direccion,
             creador: { connect: { id: creadorId } },
             fechaInicio: datos.fechaInicio,
             fechaFin: datos.fechaFin
+            // ver con ubicacion
         }
     });
 }
 
-export { getEvents, getEventsFiltered, postEvent };
+export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent };

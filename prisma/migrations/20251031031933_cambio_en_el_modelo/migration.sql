@@ -9,9 +9,8 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Event" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "nombre" TEXT NOT NULL,
+    "titulo" TEXT NOT NULL,
     "descripcion" TEXT NOT NULL,
-    "direccion" TEXT NOT NULL,
     "fechaInicio" DATETIME NOT NULL,
     "fechaFin" DATETIME NOT NULL,
     "userId" INTEGER,
@@ -24,6 +23,15 @@ CREATE TABLE "ImagenDeEvento" (
     "url" TEXT NOT NULL,
     "eventId" INTEGER NOT NULL,
     CONSTRAINT "ImagenDeEvento_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Ubicacion" (
+    "eventId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "latitud" REAL NOT NULL,
+    "longitud" REAL NOT NULL,
+    "direccion" TEXT NOT NULL,
+    CONSTRAINT "Ubicacion_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable

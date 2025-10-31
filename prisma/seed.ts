@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client'
+import { create } from 'domain'
 
 const prisma = new PrismaClient()
 
@@ -9,7 +10,7 @@ const userData: Prisma.UserCreateInput = {
   mis_eventos: {
     create: [
       {
-        nombre: "Afrika",
+        titulo: "Afrika",
         descripcion: "Hoy, noche del mes en Afrika Club, no te la pierdas\nJunin 1787, a partir de las 22:30",
         imagenes: {
           create: [
@@ -21,12 +22,18 @@ const userData: Prisma.UserCreateInput = {
             }
           ]
         },
-        direccion: "Junín 1787, C1113 Cdad. Autónoma de Buenos Aires",
-        fechaInicio: new Date(2025, 9, 24, 18, 30),// 24/10/2025 18:30
-        fechaFin: new Date(2025, 9, 24, 20, 30)// 24/10/2025 20:30
+        fechaInicio: new Date("2025-11-01T22:30:00"),
+        fechaFin: new Date("2025-11-02T02:00:00"),
+        ubicacion: {
+          create: {
+            latitud: -34.6037,
+            longitud: -58.3816,
+            direccion: "Junín 1787, Buenos Aires"
+          }
+        }
       },
       {
-        nombre: "Jazz&Funk Jam",
+        titulo: "Jazz&Funk Jam",
         descripcion: "En Plaza Vicente Lopez va a ver un Jam de musica a las 19:45 hs\nSumate!!",
         imagenes: {
           create: [
@@ -35,16 +42,28 @@ const userData: Prisma.UserCreateInput = {
             }
           ]
         },
-        direccion: "Montevideo 1301, C1426 Cdad. Autónoma de Buenos Aires",
-        fechaInicio: new Date(2025, 9, 24, 18, 30),// 24/10/2025 18:30
-        fechaFin: new Date(2025, 9, 24, 20, 30)// 24/10/2025 20:30
+        fechaInicio: new Date("2025-11-02T19:45:00"),
+        fechaFin: new Date("2025-11-02T23:00:00"),
+        ubicacion: {
+          create: {
+            latitud: -34.5880,
+            longitud: -58.4030,
+            direccion: "Plaza Vicente López, Buenos Aires"
+          }
+        }
       },
       {
-        nombre: "Siga la Vaca, Super promo",
+        titulo: "Siga la Vaca, Super promo",
         descripcion: "Hoy durante todo el día, promo especial 15% de descuento en Siga la Vaca, cualquier medio de pago!!",
-        direccion: "Av. Alicia Moreau de Justo 1714, C1099 Cdad. Autónoma de Buenos Aires",
-        fechaInicio: new Date(2025, 9, 24, 18, 30),// 24/10/2025 18:30
-        fechaFin: new Date(2025, 9, 24, 20, 30)// 24/10/2025 20:30
+        fechaInicio: new Date("2025-11-03T10:00:00"),
+        fechaFin: new Date("2025-11-03T22:00:00"),
+        ubicacion: {
+          create: {
+            latitud: -34.6158,
+            longitud: -58.4333,
+            direccion: "Av. Cabildo 500, Buenos Aires"
+          }
+        }
       }
     ]
   },
