@@ -10,12 +10,18 @@ const postImage = async (
     eventId: number) => {
 
     for (const img of imagenes) { // No uso el createMany porque no puedo hacer el connect sino
-        await prisma.imagenDeEvento.create({
-            data: {
-                url: img.url,
-                event: { connect: { id: eventId } },
-            },
-        });
+        try {
+            const result = await prisma.imagenDeEvento.create({
+                data: {
+                    url: img.url,
+                    event: { connect: { id: eventId } },// Me lo guardo de la query anterior
+                },
+            });
+            return result;
+        } catch (error) {
+            console.error("No se encontró evento con tal id", error);
+            return null;
+        }
     }
 
     return getImages(prisma);

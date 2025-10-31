@@ -8,7 +8,7 @@ const getUsers = async (prisma: PrismaClient) => {
 const confirmLogin = async (
     prisma: PrismaClient,
     email: string,
-    contrasenia: string ) => {
+    contrasenia: string) => {
     return await prisma.user.findFirst({
         where: {
             email: email,
@@ -20,11 +20,17 @@ const confirmLogin = async (
 const postUser = async (
     prisma: PrismaClient,
     datos: UserData) => {
-    return await prisma.user.create({
-        data: {
-            ...datos
-        },
-    });
+    try {
+        const result = await prisma.user.create({
+            data: {
+                ...datos
+            }
+        });
+        return result;
+    } catch (error) {
+        console.error("El email ya está registrado", error);
+        return null;
+    }
 }
 
 export { getUsers, postUser, confirmLogin };

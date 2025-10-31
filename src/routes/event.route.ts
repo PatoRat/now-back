@@ -24,16 +24,25 @@ const UserRoute = (prisma: PrismaClient) => {
 
     router.get('/ubicacion/:eventId', async (req, res) => {
         const { eventId } = req.params;
-
-        const result = await getUbicacionFromEvent(prisma, Number(eventId));
-        console.log(result);
-        res.json(result);
+        try {
+            const result = await getUbicacionFromEvent(prisma, Number(eventId));
+            console.log(result);
+            res.json(result);
+        } catch (error) {
+            console.error("No encontró esa id.", error);
+            res.status(401).json(error);
+        }
     });
 
     router.post('/create', async (req, res) => {
         const datos: EventData = req.body;
         const decoded = jwt.verify(datos.token, SECRET_KEY_JWT);
         const result = await postEvent(prisma, datos, decoded.id);
+        if (!result) {
+            const error = "El usuario no existe";
+            console.error(error);
+            return res.status(401).json({ error: error });
+        }
         console.log(result);
         res.json(result);
     });
