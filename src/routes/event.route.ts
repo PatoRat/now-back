@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getEvents, getEventsFiltered, getUbicacionFromEvent, postEvent } from '../controllers/EventController'
+import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 
 const jwt = require("jsonwebtoken");
@@ -21,6 +21,24 @@ const UserRoute = (prisma: PrismaClient) => {
         console.log(events);
         res.json(events)
     });
+
+    router.get('/my-events', async(req, res)=>{
+        const {token} = req.body;
+        const decoded = jwt.verify(token, SECRET_KEY_JWT);
+        const result = await getMyEvents(prisma, decoded.id);
+        console.log(result);
+        res.json(result);
+        
+    });
+
+    // router.get('/favs', async(req, res)=>{
+    //     const {token} = req.body;
+    //     const decoded = jwt.verify(token, SECRET_KEY_JWT);
+    //     const result = await getMyEvents(prisma, decoded.id);
+    //     console.log(result);
+    //     res.json(result);
+        
+    // }); // Ver ya que tiene logica mucho mas compleja
 
     router.get('/ubicacion/:eventId', async (req, res) => {
         const { eventId } = req.params;

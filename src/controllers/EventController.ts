@@ -22,6 +22,15 @@ const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
     return result;
 }
 
+const getMyEvents = async (
+    prisma: PrismaClient,
+    creadorId: number) => {
+    const result = await prisma.event.findMany({
+        where: {userId: creadorId}
+    });
+    return result;
+}
+
 const postEvent = async (
     prisma: PrismaClient,
     datos: EventData,
@@ -33,8 +42,14 @@ const postEvent = async (
                 descripcion: datos.descripcion,
                 creador: { connect: { id: creadorId } },
                 fechaInicio: datos.fechaInicio,
-                fechaFin: datos.fechaFin
-                // ver con ubicacion
+                fechaFin: datos.fechaFin,
+                ubicacion: {
+                    create: {
+                        direccion: datos.ubicacion.direccion,
+                        latitud: datos.ubicacion.latitud,
+                        longitud: datos.ubicacion.longitud
+                    }
+                }
             }
         });
         return result;
@@ -44,4 +59,4 @@ const postEvent = async (
     }
 }
 
-export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent };
+export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent, getMyEvents };
