@@ -1,6 +1,8 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
 import { getImages, postImage } from '../controllers/ImageController'
+import { upload } from "../../scripts/multer"
+import { BACK_URL } from "../../config"
 
 const ImageRoute = (prisma: PrismaClient) => {
     const router = Router();
@@ -11,8 +13,12 @@ const ImageRoute = (prisma: PrismaClient) => {
         res.json(products)
     });
 
-    router.post('/save', async (req, res) => {
-        const { imagenes, eventId } = req.body
+    router.post('/save', upload.array("imagenes"), async (req, res) => {
+        const files = req.files as Express.Multer.File[];
+        const { eventId } = req.body;
+        const imagenes = files.map(f => ({
+            url: `${BACK_URL}/uploads/${f.filename}`,
+        }));
         const result = await postImage(prisma, imagenes, eventId);
         if (!result) {
             const error = "No existe tal evento";

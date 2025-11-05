@@ -2,10 +2,8 @@ import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
 import { getUsers, postUser, confirmLogin } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
-
-const jwt = require("jsonwebtoken");
-// Esta es la clave cifrada para el JWT de la app Now
-const SECRET_KEY_JWT = "ek1vrqfharXDqye/f3SfAPH6/jUUBVIBN1xVIH6ho8OkuhDveU2HVGxYdH25EK/T8KTLBnPE3KQvCJlgkIA1dw=";
+import jwt from "jsonwebtoken";
+import { SECRET_KEY_JWT } from "../../config";
 
 const UserRoute = (prisma: PrismaClient) => {
     const router = Router();

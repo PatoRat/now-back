@@ -2,10 +2,9 @@ import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
 import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { SECRET_KEY_JWT } from "../../config";
 
-const jwt = require("jsonwebtoken");
-// Esta es la clave cifrada para el JWT de la app Now
-const SECRET_KEY_JWT = "ek1vrqfharXDqye/f3SfAPH6/jUUBVIBN1xVIH6ho8OkuhDveU2HVGxYdH25EK/T8KTLBnPE3KQvCJlgkIA1dw=";
 
 const UserRoute = (prisma: PrismaClient) => {
     const router = Router();
@@ -24,7 +23,7 @@ const UserRoute = (prisma: PrismaClient) => {
 
     router.get('/my-events', async(req, res)=>{
         const {token} = req.body;
-        const decoded = jwt.verify(token, SECRET_KEY_JWT);
+        const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
         const result = await getMyEvents(prisma, decoded.id);
         console.log(result);
         res.json(result);
@@ -54,7 +53,7 @@ const UserRoute = (prisma: PrismaClient) => {
 
     router.post('/create', async (req, res) => {
         const datos: EventData = req.body;
-        const decoded = jwt.verify(datos.token, SECRET_KEY_JWT);
+        const decoded = jwt.verify(datos.token, SECRET_KEY_JWT) as JwtPayload;
         const result = await postEvent(prisma, datos, decoded.id);
         if (!result) {
             const error = "El usuario no existe";
