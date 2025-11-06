@@ -4,4 +4,5 @@ dist/
 
 # Manualmente creados
 curl_command.ps1
+git_command.ps1
 draft/
