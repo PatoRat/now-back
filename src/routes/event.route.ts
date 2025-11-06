@@ -21,7 +21,7 @@ const UserRoute = (prisma: PrismaClient) => {
         res.json(events)
     });
 
-    router.get('/userAuthorized', async (req, res) => {
+    router.get('/created-by-authorized-user', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
         try {
             const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;

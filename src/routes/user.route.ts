@@ -24,8 +24,14 @@ const UserRoute = (prisma: PrismaClient) => {
                 console.error(error);
                 return res.status(401).json({ error: error });
             }
-            console.log(user);
-            res.json(user);
+            const result: Omit<typeof user, "email" | "contrasenia"> = {
+                id: user.id,
+                nombre: user.nombre,
+                numeroAvatar: user.numeroAvatar,
+                favs: user.favs
+            };
+            console.log(result);
+            res.json(result);
         } catch (error) {
             console.error("Acceso no autorizado", error);
             res.status(401).json({ error: error });

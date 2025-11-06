@@ -1,7 +1,6 @@
 type EventData = {
     titulo: string,
     descripcion: string,
-    direccion: string,
     fechaInicio: Date,
     fechaFin: Date,
     ubicacion: UbicacionData
@@ -17,7 +16,7 @@ type UserData = {
     email: string,
     nombre: string,
     contrasenia: string,
-    numeroAvatar: number
+    numeroAvatar: number,
 };
 
 export { EventData, UserData }

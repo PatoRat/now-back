@@ -25,14 +25,19 @@ const getUserById = async (
             id: userId
         },
         include: {
-            favs: true,
+            favs: {
+                include:{
+                    ubicacion: true,
+                    imagenes: true
+                }
+            }
         }
     });
 }
 
 const postUser = async (
     prisma: PrismaClient,
-    datos: UserData) => {
+    datos: Omit<UserData, "favs">) => {
     try {
         const result = await prisma.user.create({
             data: {

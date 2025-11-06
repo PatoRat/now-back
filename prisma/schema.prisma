@@ -32,7 +32,7 @@ model Event {
 
 model ImagenDeEvento {
   id      Int    @id @default(autoincrement())
-  url     String // Si es URL o vamos a implementar librerías de procesamiento de imagenes despues lo vemos
+  url     String
   eventId Int
   event   Event  @relation(fields: [eventId], references: [id])
 }
