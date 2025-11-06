@@ -10,10 +10,10 @@ const ImageRoute = (prisma: PrismaClient) => {
     router.get('/', async (req, res) => {
         const products = await getImages(prisma);
         console.log(products);
-        res.json(products)
+        res.status(200).json(products)
     });
 
-    router.post('/save', upload.array("imagenes"), async (req, res) => {
+    router.post('/save', upload.array("imagenes"), async (req, res) => {// autorizacion
         const files = req.files as Express.Multer.File[];
         const { eventId } = req.body;
         const imagenes = files.map(f => ({
@@ -23,10 +23,10 @@ const ImageRoute = (prisma: PrismaClient) => {
         if (!result) {
             const error = "No existe tal evento";
             console.error(error);
-            return res.status(401).json({ error: error });
+            return res.status(404).json({ error: error });
         }
         console.log(result);
-        res.json(result)
+        res.status(201).json(result)
     });
 
     return router;

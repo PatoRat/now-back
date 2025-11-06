@@ -9,9 +9,9 @@ const UserRoute = (prisma: PrismaClient) => {
     const router = Router();
 
     router.get('/', async (req, res) => {
-        const products = await getUsers(prisma);
-        console.log(products);
-        res.json(products)
+        const users = await getUsers(prisma);
+        console.log(users);
+        res.status(200).json(users)
     });
 
     router.get('/my-user', async (req, res) => {
@@ -22,7 +22,7 @@ const UserRoute = (prisma: PrismaClient) => {
             if (!user) {
                 const error = "El usuario no existe";
                 console.error(error);
-                return res.status(401).json({ error: error });
+                return res.status(404).json({ error: error });
             }
             const result: Omit<typeof user, "email" | "contrasenia"> = {
                 id: user.id,
@@ -31,7 +31,7 @@ const UserRoute = (prisma: PrismaClient) => {
                 favs: user.favs
             };
             console.log(result);
-            res.json(result);
+            res.status(200).json(result);
         } catch (error) {
             console.error("Acceso no autorizado", error);
             res.status(401).json({ error: error });
@@ -44,11 +44,11 @@ const UserRoute = (prisma: PrismaClient) => {
         if (!user) {
             const error = "El email con el que se intenta registrar ya existe";
             console.error(error);
-            return res.status(401).json({ error: error });
+            return res.status(404).json({ error: error });
         }
         console.log(user);
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
-        res.json(token);
+        res.status(201).json(token);
     });
 
     router.post('/login', async (req, res) => {
@@ -62,7 +62,7 @@ const UserRoute = (prisma: PrismaClient) => {
         console.log(user);
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
         // console.log(token); solo para testear
-        res.json(token);
+        res.status(202).json(token);
     });
 
     return router;
