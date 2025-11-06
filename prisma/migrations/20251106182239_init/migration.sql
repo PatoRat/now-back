@@ -3,7 +3,8 @@ CREATE TABLE "User" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "email" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
-    "contrasenia" TEXT NOT NULL
+    "contrasenia" TEXT NOT NULL,
+    "numeroAvatar" INTEGER NOT NULL
 );
 
 -- CreateTable

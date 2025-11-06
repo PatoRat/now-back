@@ -1,5 +1,4 @@
 type EventData = {
-    token: string,
     titulo: string,
     descripcion: string,
     direccion: string,
@@ -17,7 +16,8 @@ type UbicacionData = {
 type UserData = {
     email: string,
     nombre: string,
-    contrasenia: string
+    contrasenia: string,
+    numeroAvatar: number
 };
 
 export { EventData, UserData }

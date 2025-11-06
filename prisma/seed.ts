@@ -7,6 +7,7 @@ const userData: Prisma.UserCreateInput = {
   email: "juan@gmail.com",
   nombre: "Juan",
   contrasenia: "Asd123123",
+  numeroAvatar: 0,
   mis_eventos: {
     create: [
       {

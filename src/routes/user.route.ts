@@ -1,8 +1,8 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, confirmLogin } from '../controllers/UserController'
+import { getUsers, postUser, confirmLogin, getUserById } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
 
 const UserRoute = (prisma: PrismaClient) => {
@@ -14,17 +14,35 @@ const UserRoute = (prisma: PrismaClient) => {
         res.json(products)
     });
 
+    router.get('/my-user', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const user = await getUserById(prisma, decoded.id);
+            if (!user) {
+                const error = "El usuario no existe";
+                console.error(error);
+                return res.status(401).json({ error: error });
+            }
+            console.log(user);
+            res.json(user);
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            res.status(401).json({ error: error });
+        }
+    });
+
     router.post('/register', async (req, res) => {
         const datos: UserData = req.body;
-        const result = await postUser(prisma, datos);
-        if (!result) {
+        const user = await postUser(prisma, datos);
+        if (!user) {
             const error = "El email con el que se intenta registrar ya existe";
             console.error(error);
             return res.status(401).json({ error: error });
         }
-        console.log(result);
-        const token = jwt.sign({ id: result?.id }, SECRET_KEY_JWT);
-        res.json({ token });
+        console.log(user);
+        const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
+        res.json(token);
     });
 
     router.post('/login', async (req, res) => {
@@ -37,7 +55,8 @@ const UserRoute = (prisma: PrismaClient) => {
         }
         console.log(user);
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
-        res.json({ token });
+        // console.log(token); solo para testear
+        res.json(token);
     });
 
     return router;

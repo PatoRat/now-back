@@ -21,23 +21,18 @@ const UserRoute = (prisma: PrismaClient) => {
         res.json(events)
     });
 
-    router.get('/my-events', async(req, res)=>{
-        const {token} = req.body;
-        const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
-        const result = await getMyEvents(prisma, decoded.id);
-        console.log(result);
-        res.json(result);
-        
+    router.get('/userAuthorized', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const result = await getMyEvents(prisma, decoded.id);// aprovecho que firmo el id
+            console.log(result);
+            res.json(result);
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
+        }
     });
-
-    // router.get('/favs', async(req, res)=>{
-    //     const {token} = req.body;
-    //     const decoded = jwt.verify(token, SECRET_KEY_JWT);
-    //     const result = await getMyEvents(prisma, decoded.id);
-    //     console.log(result);
-    //     res.json(result);
-        
-    // }); // Ver ya que tiene logica mucho mas compleja
 
     router.get('/ubicacion/:eventId', async (req, res) => {
         const { eventId } = req.params;
@@ -51,17 +46,23 @@ const UserRoute = (prisma: PrismaClient) => {
         }
     });
 
-    router.post('/create', async (req, res) => {
+    router.post('/create-my-event', async (req, res) => {
         const datos: EventData = req.body;
-        const decoded = jwt.verify(datos.token, SECRET_KEY_JWT) as JwtPayload;
-        const result = await postEvent(prisma, datos, decoded.id);
-        if (!result) {
-            const error = "El usuario no existe";
-            console.error(error);
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const result = await postEvent(prisma, datos, decoded.id);
+            if (!result) {
+                const error = "El usuario no existe";
+                console.error(error);
+                return res.status(401).json({ error: error });
+            }
+            console.log(result);
+            res.json(result);
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
             return res.status(401).json({ error: error });
         }
-        console.log(result);
-        res.json(result);
     });
 
     return router;

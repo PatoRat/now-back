@@ -26,7 +26,11 @@ const getMyEvents = async (
     prisma: PrismaClient,
     creadorId: number) => {
     const result = await prisma.event.findMany({
-        where: {userId: creadorId}
+        where: {userId: creadorId},
+        include: {
+            ubicacion: true,
+            imagenes: true
+        }
     });
     return result;
 }

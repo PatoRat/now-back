@@ -17,6 +17,19 @@ const confirmLogin = async (
     });
 }
 
+const getUserById = async (
+    prisma: PrismaClient,
+    userId: number) => {
+    return await prisma.user.findUnique({
+        where: {
+            id: userId
+        },
+        include: {
+            favs: true,
+        }
+    });
+}
+
 const postUser = async (
     prisma: PrismaClient,
     datos: UserData) => {
@@ -33,4 +46,4 @@ const postUser = async (
     }
 }
 
-export { getUsers, postUser, confirmLogin };
+export { getUsers, getUserById, postUser, confirmLogin };
