@@ -17,6 +17,7 @@ const postImage = async (
                     event: { connect: { id: eventId } },// Me lo guardo de la query anterior
                 },
             });
+
         } catch (error) {
             console.error("No se encontró evento con tal id", error);
             return null;

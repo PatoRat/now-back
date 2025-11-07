@@ -26,7 +26,7 @@ const getUserById = async (
         },
         include: {
             favs: {
-                include:{
+                include: {
                     ubicacion: true,
                     imagenes: true
                 }
@@ -45,6 +45,7 @@ const postUser = async (
             }
         });
         return result;
+
     } catch (error) {
         console.error("El email ya está registrado", error);
         return null;
