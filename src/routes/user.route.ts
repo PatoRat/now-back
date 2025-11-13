@@ -36,7 +36,7 @@ const UserRoute = (prisma: PrismaClient) => {
                 favs: user.favs
             };
 
-            console.log(result);
+            console.log("Datos del usuario:", result);
             res.status(200).json(result);
 
         } catch (error) {
@@ -70,7 +70,7 @@ const UserRoute = (prisma: PrismaClient) => {
             return res.status(401).json({ error: error });
         }
 
-        console.log(user);
+        console.log("Usuario del login:", user);
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
         // console.log(token); solo para testear
         res.status(202).json(token);
