@@ -5,3 +5,4 @@ dist/
 # Manualmente creados
 curl_command.ps1
 draft/
+back_logs.log
