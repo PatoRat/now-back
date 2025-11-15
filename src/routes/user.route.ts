@@ -52,7 +52,7 @@ const UserRoute = (prisma: PrismaClient) => {
         if (!user) {
             const error = "El email con el que se intenta registrar ya existe";
             console.error(error);
-            return res.status(404).json({ error: error });
+            return res.status(409).json({ error: error });
         }
 
         console.log(user);
@@ -73,7 +73,7 @@ const UserRoute = (prisma: PrismaClient) => {
         console.log("Usuario del login:", user);
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
         // console.log(token); solo para testear
-        res.status(202).json(token);
+        res.status(200).json(token);
     });
 
     return router;
