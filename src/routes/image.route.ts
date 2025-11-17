@@ -12,7 +12,7 @@ const ImageRoute = (prisma: PrismaClient) => {
     router.get('/', async (req, res) => {
         const products = await getImages(prisma);
 
-        console.log(products);
+        console.log("Response /:", products);
         res.status(200).json(products)
     });
 
@@ -35,7 +35,7 @@ const ImageRoute = (prisma: PrismaClient) => {
                 return res.status(404).json({ error: error });
             }
 
-            console.log(result);
+            console.log("Response /save:", result);
             res.status(201).json(result);
 
         } catch (error) {

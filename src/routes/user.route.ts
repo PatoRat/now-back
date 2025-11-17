@@ -11,7 +11,7 @@ const UserRoute = (prisma: PrismaClient) => {
     router.get('/', async (req, res) => {
         const users = await getUsers(prisma);
 
-        console.log(users);
+        console.log("Response /:", users);
         res.status(200).json(users)
     });
 
@@ -36,7 +36,7 @@ const UserRoute = (prisma: PrismaClient) => {
                 favs: user.favs
             };
 
-            console.log("Datos del usuario:", result);
+            console.log("Response /my-user:", result);
             res.status(200).json(result);
 
         } catch (error) {
@@ -55,7 +55,7 @@ const UserRoute = (prisma: PrismaClient) => {
             return res.status(409).json({ error: error });
         }
 
-        console.log(user);
+        console.log("Response /register:", user);
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
         res.status(201).json(token);
     });
@@ -70,7 +70,7 @@ const UserRoute = (prisma: PrismaClient) => {
             return res.status(401).json({ error: error });
         }
 
-        console.log("Usuario del login:", user);
+        console.log("Response /login:", user);
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
         // console.log(token); solo para testear
         res.status(200).json(token);
