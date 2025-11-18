@@ -44,6 +44,30 @@ const ImageRoute = (prisma: PrismaClient) => {
         }
     });
 
+    router.post('/save-sin-archivos', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+        const { eventId, imagenes } = req.body;
+
+        try {
+            jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+
+            const result = await postImage(prisma, imagenes, eventId);
+
+            if (!result) {
+                const error = "No existe tal evento";
+                console.error(error);
+                return res.status(404).json({ error: error });
+            }
+
+            console.log("Response /save:", result);
+            res.status(201).json(result);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            res.status(401).json({ error: error });
+        }
+    });
+
     return router;
 }
 
