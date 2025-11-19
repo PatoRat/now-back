@@ -1,14 +1,27 @@
-import { PrismaClient, Prisma } from "@prisma/client";
-import { EventData } from "../../scripts/types";
+import { PrismaClient, Prisma, Ubicacion } from "@prisma/client";
+import { EventData, UbicacionData } from "../../scripts/types";
 import { distancia } from "../../scripts/funciones";
+
+type Coordenadas = Omit<UbicacionData, "direccion">
 
 const getEvents = async (prisma: PrismaClient) => {
     return await prisma.event.findMany();
 }
 
-const getEventsFiltered = async (prisma: PrismaClient) => {// cambiar
-    const eventos = await prisma.event.findMany();
-    const eventosFiltrados = eventos.filter(evento => distancia(1, 2, 3, 4) < 10);
+const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coordenadas) => {
+    const eventos = await prisma.event.findMany({
+        include: {
+            ubicacion: true,
+            imagenes: true
+        }
+    });
+
+    const eventosFiltrados = eventos.filter(evento => distancia(
+        coordenadasUsuario.latitud,
+        coordenadasUsuario.longitud,
+        evento.ubicacion?.latitud as number,
+        evento.ubicacion?.longitud as number
+    ) < 10); // km
     return eventosFiltrados;
 }
 

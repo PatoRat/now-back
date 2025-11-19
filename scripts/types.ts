@@ -19,4 +19,4 @@ type UserData = {
     numeroAvatar: number,
 };
 
-export { EventData, UserData }
+export { EventData, UserData, UbicacionData }

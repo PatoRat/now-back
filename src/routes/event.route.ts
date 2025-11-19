@@ -21,7 +21,10 @@ const UserRoute = (prisma: PrismaClient) => {
 
         try {
             jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
-            const events = await getEventsFiltered(prisma);
+
+            const { coordenadasUsuario } = req.body;
+
+            const events = await getEventsFiltered(prisma, coordenadasUsuario);
 
             console.log("Response /:", events);
             res.status(200).json(events);
@@ -62,11 +65,13 @@ const UserRoute = (prisma: PrismaClient) => {
     });
 
     router.post('/create-my-event', async (req, res) => {
-        const datos: EventData = req.body;
         const token = req?.headers?.authorization?.split(" ")[1] || "";
 
         try {
             const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+
+            const datos: EventData = req.body;
+
             const result = await postEvent(prisma, datos, decoded.id);
 
             if (!result) {

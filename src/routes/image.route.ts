@@ -18,11 +18,13 @@ const ImageRoute = (prisma: PrismaClient) => {
 
     router.post('/save', upload.array("imagenes"), async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
-        const files = req.files as Express.Multer.File[];
-        const { eventId } = req.body;
 
         try {
             jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+
+            const files = req.files as Express.Multer.File[];
+            const { eventId } = req.body;
+
             const imagenes = files.map(f => ({
                 url: `${BACK_URL}/uploads/${f.filename}`,
             }));
@@ -46,10 +48,11 @@ const ImageRoute = (prisma: PrismaClient) => {
 
     router.post('/save-sin-archivos', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
-        const { eventId, imagenes } = req.body;
 
         try {
             jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+
+            const { eventId, imagenes } = req.body;
 
             const result = await postImage(prisma, imagenes, eventId);
 
