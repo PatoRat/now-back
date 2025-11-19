@@ -73,7 +73,7 @@ const postEvent = async (
         return result;
 
     } catch (error) {
-        console.error("El usuario no existe", error);
+        console.error("Error creando evento", error);
         return null;
     }
 }

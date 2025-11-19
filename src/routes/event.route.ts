@@ -75,7 +75,7 @@ const UserRoute = (prisma: PrismaClient) => {
             const result = await postEvent(prisma, datos, decoded.id);
 
             if (!result) {
-                const error = "El usuario no existe";
+                const error = "Hubo un error creando el evento, revise los datos";
                 console.error(error);
                 return res.status(404).json({ error: error });
             }

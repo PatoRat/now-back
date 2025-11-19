@@ -6,16 +6,14 @@ const getUsers = async (prisma: PrismaClient) => {
     return await prisma.user.findMany();
 }
 
-const confirmLogin = async (
+const getUserByEmail = async (
     prisma: PrismaClient,
-    email: string,
-    contrasenia: string) => {
-    return await prisma.user.findFirst({
+    email: string) => {
+    return await prisma.user.findUnique({
         where: {
             email: email
         }
     });
-
 }
 
 const getUserById = async (
@@ -54,9 +52,9 @@ const postUser = async (
         return result;
 
     } catch (error) {
-        console.error("El email ya está registrado", error);
+        console.error("Ocurrio un error: ", error);
         return null;
     }
 }
 
-export { getUsers, getUserById, postUser, confirmLogin };
+export { getUsers, getUserById, getUserByEmail, postUser };

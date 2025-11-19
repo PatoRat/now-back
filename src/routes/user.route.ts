@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, confirmLogin, getUserById } from '../controllers/UserController'
+import { getUsers, postUser, getUserById, getUserByEmail } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -48,10 +48,19 @@ const UserRoute = (prisma: PrismaClient) => {
 
     router.post('/register', async (req, res) => {
         const datos: UserData = req.body;
+
+        const userExistente = await getUserByEmail(prisma, datos.email);
+
+        if (userExistente) {
+            const error = "El email ya se encuentra registrado";
+            console.error(error);
+            return res.status(409).json({ error: error });
+        }
+
         const user = await postUser(prisma, datos);
 
         if (!user) {
-            const error = "El email con el que se intenta registrar ya existe";
+            const error = "Error durante la creacion";
             console.error(error);
             return res.status(409).json({ error: error });
         }
@@ -63,7 +72,7 @@ const UserRoute = (prisma: PrismaClient) => {
 
     router.post('/login', async (req, res) => {
         const { email, password } = req.body;
-        const user = await confirmLogin(prisma, email, password);
+        const user = await getUserByEmail(prisma, email);
 
         if (!user) {
             const error = "No existe ningun usuario registrado con ese mail";

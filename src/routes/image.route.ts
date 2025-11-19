@@ -21,7 +21,12 @@ const ImageRoute = (prisma: PrismaClient) => {
 
         try {
             jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
+        }
 
+        try {
             const files = req.files as Express.Multer.File[];
             const { eventId } = req.body;
 
@@ -47,7 +52,7 @@ const ImageRoute = (prisma: PrismaClient) => {
             res.status(201).json(result);
 
         } catch (error) {
-            console.error("Acceso no autorizado", error);
+            console.error("No se puedo cargar las imagenes", error);
             res.status(401).json({ error: error });
         }
     });
