@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { UserData } from "../../scripts/types";
+import { hashPassword, randomSalt } from "../../scripts/funciones";
 
 const getUsers = async (prisma: PrismaClient) => {
     return await prisma.user.findMany();
@@ -11,10 +12,10 @@ const confirmLogin = async (
     contrasenia: string) => {
     return await prisma.user.findFirst({
         where: {
-            email: email,
-            contrasenia: contrasenia
+            email: email
         }
     });
+
 }
 
 const getUserById = async (
@@ -39,9 +40,15 @@ const postUser = async (
     prisma: PrismaClient,
     datos: Omit<UserData, "favs">) => {
     try {
+        const sal = randomSalt(16);
+        const contraseniaHasheada = await hashPassword(datos.contrasenia, sal);
         const result = await prisma.user.create({
             data: {
-                ...datos
+                nombre: datos.nombre,
+                contrasenia_hash: contraseniaHasheada,
+                sal: sal,
+                email: datos.email,
+                numeroAvatar: datos.numeroAvatar,
             }
         });
         return result;

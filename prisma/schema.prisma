@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id           Int     @id @default(autoincrement())
-  email        String  @unique
-  nombre       String
-  contrasenia  String
-  numeroAvatar Int
-  mis_eventos  Event[] @relation("EventosCreados")
-  favs         Event[] @relation("EventosFavoritos")
+  id               Int     @id @default(autoincrement())
+  email            String  @unique
+  nombre           String
+  contrasenia_hash String
+  sal              String
+  numeroAvatar     Int
+  mis_eventos      Event[] @relation("EventosCreados")
+  favs             Event[] @relation("EventosFavoritos")
 }
 
 model Event {

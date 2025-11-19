@@ -4,6 +4,7 @@ import { getUsers, postUser, confirmLogin, getUserById } from '../controllers/Us
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
+import { hashPassword } from "../../scripts/funciones";
 
 const UserRoute = (prisma: PrismaClient) => {
     const router = Router();
@@ -29,7 +30,7 @@ const UserRoute = (prisma: PrismaClient) => {
                 return res.status(404).json({ error: error });
             }
 
-            const result: Omit<typeof user, "email" | "contrasenia"> = {
+            const result: Omit<typeof user, "email" | "contrasenia_hash" | "sal"> = {
                 id: user.id,
                 nombre: user.nombre,
                 numeroAvatar: user.numeroAvatar,
@@ -65,7 +66,15 @@ const UserRoute = (prisma: PrismaClient) => {
         const user = await confirmLogin(prisma, email, password);
 
         if (!user) {
-            const error = "El usuario o contraseña son incorrectos";
+            const error = "No existe ningun usuario registrado con ese mail";
+            console.error(error);
+            return res.status(401).json({ error: error });
+        }
+
+        const contraseniaHasheada = await hashPassword(password, user.sal);
+
+        if(user.contrasenia_hash != contraseniaHasheada){
+            const error = "Contrasenia incorrecta";
             console.error(error);
             return res.status(401).json({ error: error });
         }

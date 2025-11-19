@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 // La saqué de internet, supuestamente es más exacta a la hora de usar
 // latitudes y longitudes que: sqrt( (lat2 - lat1)² + (lon2 - lon1)² )
 const distancia = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -13,4 +15,19 @@ const distancia = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   return R * c; // En km
 }
 
-export {distancia};
+
+// La hicimos con unos compañeros para explicar PBKDF2, pero la simplifiqué
+const hashPassword = async (password: string, salt: string): Promise<string> => {
+
+  const hash: string = await new Promise((resolve, reject) => {
+    crypto.pbkdf2(password, salt, 50000, 32, 'sha256', (err, derivedKey) => {
+      if (err) reject(err);
+      resolve(derivedKey.toString('hex'));
+    });
+  });
+  return hash;
+}
+
+const randomSalt = (bytes = 16) => crypto.randomBytes(bytes).toString("hex");
+
+export { distancia, hashPassword, randomSalt };
