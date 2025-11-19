@@ -25,6 +25,8 @@ const ImageRoute = (prisma: PrismaClient) => {
             const files = req.files as Express.Multer.File[];
             const { eventId } = req.body;
 
+            console.log("Imagenes recibidas: ", files);
+
             const imagenes = files.map(f => ({
                 url: `${BACK_URL}/uploads/${f.filename}`,
             }));
