@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent } from '../controllers/EventController'
+import { getEvents, getEventsFiltered, getFavs, getMyEvents, getUbicacionFromEvent, postEvent } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -14,6 +14,17 @@ const UserRoute = (prisma: PrismaClient) => {
 
         console.log("Response /all:", events);
         res.status(200).json(events)
+    });
+    
+    router.get('/user/:id/favs', async (req, res) => {
+        const userId = Number(req.params.id);
+
+        try {
+            const favs = await getFavs(prisma, userId);
+            res.status(200).json(favs);
+        } catch (error) {
+            res.status(500).json({ error: "Error interno del servidor" });
+        }
     });
 
     router.get('/', async (req, res) => {

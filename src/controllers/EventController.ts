@@ -83,5 +83,20 @@ const postEvent = async (
         return null;
     }
 }
+const getFavs = async (prisma: PrismaClient, userId: number) => {
+  const userWithFavs = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      favs: {
+        include: {
+          ubicacion: true,
+          imagenes: true
+        }
+      }
+    }
+  });
+  return userWithFavs?.favs || [];
+}
 
-export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent, getMyEvents };
+
+export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent, getMyEvents, getFavs };
