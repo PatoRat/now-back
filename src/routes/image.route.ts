@@ -29,7 +29,11 @@ const ImageRoute = (prisma: PrismaClient) => {
                 url: `${BACK_URL}/uploads/${f.filename}`,
             }));
 
-            const result = await postImage(prisma, imagenes, eventId);
+            // console.log(+eventId);
+
+            const result = await postImage(prisma, imagenes, +eventId);
+
+            // console.log(result);
 
             if (!result) {
                 const error = "No existe tal evento";
