@@ -5,7 +5,13 @@ import { distancia } from "../../scripts/funciones";
 type Coordenadas = Omit<UbicacionData, "direccion">
 
 const getEvents = async (prisma: PrismaClient) => {
-    return await prisma.event.findMany();
+    const events = await prisma.event.findMany({
+        include: {
+            ubicacion: true, // si querés incluir la ubicación también
+            imagenes: true   // aquí incluís las imágenes
+        }
+    });
+    return events;
 }
 
 const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coordenadas) => {
