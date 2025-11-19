@@ -10,13 +10,24 @@ const UserRoute = (prisma: PrismaClient) => {
     const router = Router();
 
     router.get('/all', async (req, res) => {
-        const events = await getEvents(prisma);
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
 
-        console.log("Response /all:", events);
-        res.status(200).json(events)
+        try {
+            jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+
+            const events = await getEvents(prisma);
+
+            console.log("Response /all:", events);
+            res.status(200).json(events)
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
+        }
+
     });
 
-    router.get('/', async (req, res) => {
+    router.post('/', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
 
         try {
