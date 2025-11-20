@@ -33,7 +33,7 @@ const ImageRoute = (prisma: PrismaClient) => {
             console.log("Imagenes recibidas: ", files);
 
             const imagenes = files.map(f => ({
-                url: `${BACK_URL}/uploads/${f.filename}`,
+                url: `/uploads/${f.filename}`,
             }));
 
             // console.log(+eventId);
