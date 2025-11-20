@@ -40,6 +40,27 @@ const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
     }
     return result;
 }
+const getFavsFromUser = async (prisma: PrismaClient, userId: number) => {
+  const userWithFavs = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      favs: {
+        include: {
+          ubicacion: true,
+          imagenes: true,
+          creador: true
+        }
+      }
+    }
+  });
+
+  if (!userWithFavs) {
+    throw new Error("Usuario no encontrado");
+  }
+
+  return userWithFavs.favs;
+};
+
 
 const getMyEvents = async (
     prisma: PrismaClient,
@@ -84,4 +105,4 @@ const postEvent = async (
     }
 }
 
-export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent, getMyEvents };
+export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent, getMyEvents, getFavsFromUser };
