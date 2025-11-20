@@ -30,8 +30,9 @@ const UserRoute = (prisma: PrismaClient) => {
                 return res.status(404).json({ error: error });
             }
 
-            const result: Omit<typeof user, "email" | "contrasenia_hash" | "sal"> = {
+            const result: Omit<typeof user, "contrasenia_hash" | "sal"> = {
                 id: user.id,
+                email: user.email,
                 nombre: user.nombre,
                 numeroAvatar: user.numeroAvatar,
                 favs: user.favs

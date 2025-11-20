@@ -8,7 +8,8 @@ const getEvents = async (prisma: PrismaClient) => {
     const events = await prisma.event.findMany({
         include: {
             ubicacion: true, // si querés incluir la ubicación también
-            imagenes: true   // aquí incluís las imágenes
+            imagenes: true,   // aquí incluís las imágenes
+            creador: true
         }
     });
     return events;
@@ -18,7 +19,15 @@ const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coord
     const eventos = await prisma.event.findMany({
         include: {
             ubicacion: true,
-            imagenes: true
+            imagenes: true,
+            creador: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    numeroAvatar: true,
+                    email: true
+                }
+            }
         }
     });
 

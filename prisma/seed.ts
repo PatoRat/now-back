@@ -7,7 +7,7 @@ const userData: Prisma.UserCreateInput = {
   email: "juan@gmail.com",
   nombre: "Juan",
   contrasenia_hash: "6a658017bee9ef325fab3047e5ab56a651667e55c12ad41a8d08b43ffe6eb0d8",
-  numeroAvatar: 0,
+  numeroAvatar: 1,
   sal: "97476522bb1a131e07b02c632656d0e5",
   mis_eventos: {
     create: [
