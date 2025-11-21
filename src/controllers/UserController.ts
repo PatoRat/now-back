@@ -23,14 +23,30 @@ const getUserById = async (
         where: {
             id: userId
         },
-        include: {
-            favs: {
-                include: {
-                    ubicacion: true,
-                    imagenes: true
-                }
-            }
-        }
+        // include: {
+        //     favs: {
+        //         include: {
+        //             ubicacion: true,
+        //             imagenes: true
+        //         }
+        //     }
+        // }
+    });
+}
+
+
+const cambiarAvatar = async (
+    prisma: PrismaClient,
+    userId: number,
+    indexAvatar: number) => {
+    return await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: {
+            numeroAvatar : indexAvatar
+        },
+        
     });
 }
 
@@ -57,4 +73,4 @@ const postUser = async (
     }
 }
 
-export { getUsers, getUserById, getUserByEmail, postUser };
+export { getUsers, getUserById, getUserByEmail, postUser, cambiarAvatar };

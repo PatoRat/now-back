@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, Ubicacion } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { EventData, UbicacionData } from "../../scripts/types";
 import { distancia } from "../../scripts/funciones";
 
@@ -8,17 +8,38 @@ const getEvents = async (prisma: PrismaClient) => {
     const events = await prisma.event.findMany({
         include: {
             ubicacion: true, // si querés incluir la ubicación también
-            imagenes: true   // aquí incluís las imágenes
+            imagenes: true,   // aquí incluís las imágenes
+            creador: true
         }
     });
     return events;
+}
+
+const addFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
+    return await prisma.event.update({
+        where: { id: eventId },
+        data: {
+            fans: {
+                connect: { id: userId } // agrega el usuario como fan
+            }
+        },
+        include: { fans: true }
+    });
 }
 
 const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coordenadas) => {
     const eventos = await prisma.event.findMany({
         include: {
             ubicacion: true,
-            imagenes: true
+            imagenes: true,
+            creador: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    numeroAvatar: true,
+                    email: true
+                }
+            }
         }
     });
 
@@ -40,6 +61,27 @@ const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
     }
     return result;
 }
+const getFavsFromUser = async (prisma: PrismaClient, userId: number) => {
+    const userWithFavs = await prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+            favs: {
+                include: {
+                    ubicacion: true,
+                    imagenes: true,
+                    creador: true
+                }
+            }
+        }
+    });
+
+    if (!userWithFavs) {
+        throw new Error("Usuario no encontrado");
+    }
+
+    return userWithFavs.favs;
+};
+
 
 const getMyEvents = async (
     prisma: PrismaClient,
@@ -84,4 +126,25 @@ const postEvent = async (
     }
 }
 
-export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent, getMyEvents };
+const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
+    return prisma.event.update({
+        where: { id: eventId },
+        data: {
+            fans: {
+                disconnect: { id: userId } // remueve el usuario de fans
+            }
+        },
+        include: { fans: true }
+    });
+}
+
+export {
+    getEvents,
+    getEventsFiltered,
+    postEvent,
+    getUbicacionFromEvent,
+    getMyEvents,
+    getFavsFromUser,
+    addFav,
+    removeFav
+};
