@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, getUserById, getUserByEmail } from '../controllers/UserController'
+import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -15,6 +15,32 @@ const UserRoute = (prisma: PrismaClient) => {
         console.log("Response /:", users);
         res.status(200).json(users)
     });
+
+
+    router.put('/cambiarAvatar/:index', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const {index} = req.params;
+            const user = await cambiarAvatar(prisma, decoded.id,Number(index));
+
+            if (!user) {
+                const error = "El usuario no existe";
+                console.error(error);
+                return res.status(404).json({ error: error });
+            }
+
+            console.log("Response /cambiarAvatar/:index:", user);
+            res.status(200).json(user);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            res.status(401).json({ error: error });
+        }
+    });
+    
 
     router.get('/my-user', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";

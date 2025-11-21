@@ -34,6 +34,22 @@ const getUserById = async (
     });
 }
 
+
+const cambiarAvatar = async (
+    prisma: PrismaClient,
+    userId: number,
+    indexAvatar: number) => {
+    return await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: {
+            numeroAvatar : indexAvatar
+        },
+        
+    });
+}
+
 const postUser = async (
     prisma: PrismaClient,
     datos: Omit<UserData, "favs">) => {
@@ -57,4 +73,4 @@ const postUser = async (
     }
 }
 
-export { getUsers, getUserById, getUserByEmail, postUser };
+export { getUsers, getUserById, getUserByEmail, postUser, cambiarAvatar };
