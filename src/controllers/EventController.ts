@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, Ubicacion } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { EventData, UbicacionData } from "../../scripts/types";
 import { distancia } from "../../scripts/funciones";
 
@@ -13,6 +13,18 @@ const getEvents = async (prisma: PrismaClient) => {
         }
     });
     return events;
+}
+
+const addFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
+    return await prisma.event.update({
+        where: { id: eventId },
+        data: {
+            fans: {
+                connect: { id: userId } // agrega el usuario como fan
+            }
+        },
+        include: { fans: true }
+    });
 }
 
 const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coordenadas) => {
@@ -50,24 +62,24 @@ const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
     return result;
 }
 const getFavsFromUser = async (prisma: PrismaClient, userId: number) => {
-  const userWithFavs = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      favs: {
+    const userWithFavs = await prisma.user.findUnique({
+        where: { id: userId },
         include: {
-          ubicacion: true,
-          imagenes: true,
-          creador: true
+            favs: {
+                include: {
+                    ubicacion: true,
+                    imagenes: true,
+                    creador: true
+                }
+            }
         }
-      }
+    });
+
+    if (!userWithFavs) {
+        throw new Error("Usuario no encontrado");
     }
-  });
 
-  if (!userWithFavs) {
-    throw new Error("Usuario no encontrado");
-  }
-
-  return userWithFavs.favs;
+    return userWithFavs.favs;
 };
 
 
@@ -114,4 +126,25 @@ const postEvent = async (
     }
 }
 
-export { getEvents, getEventsFiltered, postEvent, getUbicacionFromEvent, getMyEvents, getFavsFromUser };
+const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
+    return prisma.event.update({
+        where: { id: eventId },
+        data: {
+            fans: {
+                disconnect: { id: userId } // remueve el usuario de fans
+            }
+        },
+        include: { fans: true }
+    });
+}
+
+export {
+    getEvents,
+    getEventsFiltered,
+    postEvent,
+    getUbicacionFromEvent,
+    getMyEvents,
+    getFavsFromUser,
+    addFav,
+    removeFav
+};

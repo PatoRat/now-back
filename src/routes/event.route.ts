@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser } from '../controllers/EventController'
+import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -33,7 +33,7 @@ const UserRoute = (prisma: PrismaClient) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
 
         try {
-            
+
             // Decodificamos el JWT para obtener el userId
             const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
             const userId = decoded.id;
@@ -50,7 +50,7 @@ const UserRoute = (prisma: PrismaClient) => {
         }
     });
 
-    
+
     // ACA BBUSCAMOS SI TIENE LIKE
     router.get('/check-like/:eventId', async (req, res) => {
         const token = req.headers?.authorization?.split(" ")[1] || "";
@@ -95,21 +95,17 @@ const UserRoute = (prisma: PrismaClient) => {
             const userId = decoded.id;
 
             // Agregar relación fan/fav
-            const updatedEvent = await prisma.event.update({
-                where: { id: Number(eventId) },
-                data: {
-                    fans: {
-                        connect: { id: userId } // agrega el usuario como fan
-                    }
-                },
-                include: { fans: true }
-            });
+            const updatedEvent = await addFav(prisma, Number(eventId), userId);
+
+            if (!updatedEvent) {
+                return res.status(400).json({ error: "No se pudo agregar a favoritos" });
+            }
 
             res.status(200).json({ event: updatedEvent/* , user: updatedUser */ });
 
         } catch (error) {
-            console.error("Error agregando favorito:", error);
-            res.status(400).json({ error: "No se pudo agregar a favoritos" });
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
         }
     });
 
@@ -118,29 +114,25 @@ const UserRoute = (prisma: PrismaClient) => {
         const { eventId } = req.body;
 
         try {
-            
+
             if (!token) throw new Error("No hay token");
             if (!eventId) throw new Error("eventId es requerido");
 
             const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
             const userId = decoded.id;
-            
+
             // Remover relación fan/fav
-            const updatedEvent = await prisma.event.update({
-                where: { id: Number(eventId) },
-                data: {
-                    fans: {
-                        disconnect: { id: userId } // remueve el usuario de fans
-                    }
-                },
-                include: { fans: true }
-            });
+            const updatedEvent = await removeFav(prisma, Number(eventId), userId);
+
+            if (!updatedEvent) {
+                return res.status(400).json({ error: "No se pudo agregar a favoritos" });
+            }
 
             res.status(200).json({ event: updatedEvent });
 
         } catch (error) {
-            console.error("Error removiendo favorito:", error);
-            res.status(400).json({ error: "No se pudo remover de favoritos" });
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
         }
     });
 
