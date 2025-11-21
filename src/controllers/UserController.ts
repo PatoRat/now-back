@@ -23,14 +23,14 @@ const getUserById = async (
         where: {
             id: userId
         },
-        include: {
-            favs: {
-                include: {
-                    ubicacion: true,
-                    imagenes: true
-                }
-            }
-        }
+        // include: {
+        //     favs: {
+        //         include: {
+        //             ubicacion: true,
+        //             imagenes: true
+        //         }
+        //     }
+        // }
     });
 }
 

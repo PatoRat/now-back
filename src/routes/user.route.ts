@@ -60,8 +60,7 @@ const UserRoute = (prisma: PrismaClient) => {
                 id: user.id,
                 email: user.email,
                 nombre: user.nombre,
-                numeroAvatar: user.numeroAvatar,
-                favs: user.favs
+                numeroAvatar: user.numeroAvatar
             };
 
             console.log("Response /my-user:", result);
