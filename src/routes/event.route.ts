@@ -101,6 +101,7 @@ const UserRoute = (prisma: PrismaClient) => {
                 return res.status(400).json({ error: "No se pudo agregar a favoritos" });
             }
 
+            console.log("Response /add-fav: ", updatedEvent);
             res.status(200).json({ event: updatedEvent/* , user: updatedUser */ });
 
         } catch (error) {
@@ -128,6 +129,7 @@ const UserRoute = (prisma: PrismaClient) => {
                 return res.status(400).json({ error: "No se pudo agregar a favoritos" });
             }
 
+            console.log("Response /rem-fav: ", updatedEvent);
             res.status(200).json({ event: updatedEvent });
 
         } catch (error) {
