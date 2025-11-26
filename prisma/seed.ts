@@ -40,7 +40,7 @@ const userData: Prisma.UserCreateInput = {
         imagenes: {
           create: [
             {
-              url: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Buenos_Aires_Plaza_Vicente_L%C3%B3pez.jpg"
+              url: "/uploads/Buenos_Aires_Plaza_Vicente_Lopez.jpg"
             }
           ]
         },
