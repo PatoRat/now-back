@@ -90,7 +90,15 @@ const getMyEvents = async (
         where: { userId: creadorId },
         include: {
             ubicacion: true,
-            imagenes: true
+            imagenes: true,
+            creador: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    numeroAvatar: true,
+                    email: true
+                }
+            }
         }
     });
     return result;

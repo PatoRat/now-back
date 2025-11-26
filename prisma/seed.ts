@@ -20,7 +20,7 @@ const userData: Prisma.UserCreateInput = {
               url: "https://lh3.googleusercontent.com/p/AF1QipOvl8JNluUE7VeTDIs_od4sW2ZY6C330W-KHBwy=s680-w680-h510-rw"
             },
             {
-              url: "https://lh3.googleusercontent.com/gps-cs-s/AC9h4noydtcHzXNvnQ0dJ33yWeUPA2N5bUXKWj_gnZb5vYLNMmB-XUxaWrvFzLUt6LTYDdQW2-tmsrL9w79QZOnURvDLHxRiDb2pNPYb9M63K14lK1_A_gZ968FbTwTcu4or_UAd1lMl=s680-w680-h510-rw"
+              url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIrBzEjcRmsmKPBCT7ExlJPhMygH_SCL--7A&s"
             }
           ]
         },
@@ -40,7 +40,7 @@ const userData: Prisma.UserCreateInput = {
         imagenes: {
           create: [
             {
-              url: "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrDZb3XmcJpxqFPwkM3xQ4btq8RxDs-AvmhZdToNKyWw4LOcKup8ZRlDkK86I1kZoWZhbk1rKsXdRF4m_txUmjAwBuAm0up0k9AqSnebi8bHp0oELyWGkLRuc12uC5KRXJ3wgmjdg=s680-w680-h510-rw"
+              url: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Buenos_Aires_Plaza_Vicente_L%C3%B3pez.jpg"
             }
           ]
         },
