@@ -31,7 +31,11 @@ const addFav = async (prisma: PrismaClient, eventId: number, userId: number) => 
     });
 }
 
-const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coordenadas) => {
+const getEventsFiltered = async (
+    prisma: PrismaClient,
+    coordenadasUsuario: Coordenadas,
+    rango: number
+) => {
     const eventos = await prisma.event.findMany({
         where: { estaEliminado: false },
         include: {
@@ -53,7 +57,7 @@ const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coord
         coordenadasUsuario.longitud,
         evento.ubicacion?.latitud as number,
         evento.ubicacion?.longitud as number
-    ) < 10); // km
+    ) < rango); // km
     return eventosFiltrados;
 }
 

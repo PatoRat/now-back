@@ -146,9 +146,9 @@ const UserRoute = (prisma: PrismaClient) => {
         try {
             jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
 
-            const { coordenadasUsuario } = req.body;
+            const { coordenadasUsuario, rango } = req.body;
 
-            const events = await getEventsFiltered(prisma, coordenadasUsuario);
+            const events = await getEventsFiltered(prisma, coordenadasUsuario, rango);
 
             console.log("Response /:", events);
             res.status(200).json(events);
