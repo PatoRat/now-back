@@ -160,7 +160,21 @@ const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) 
     });
 }
 
+const deleteEvent = async (prisma: PrismaClient, eventId: number, userId: number) => {
+    return prisma.event.update({
+        where: {
+            id: eventId,
+            userId: userId,
+            estaEliminado: false
+        },
+        data: {
+            estaEliminado: true
+        },
+    });
+}
+
 export {
+    deleteEvent,
     getEvents,
     getEventsFiltered,
     postEvent,

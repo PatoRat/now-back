@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar } from '../controllers/UserController'
+import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -34,7 +34,7 @@ const UserRoute = (prisma: PrismaClient) => {
 
             const { id, email, numeroAvatar } = user;
 
-            console.log("Response /cambiarAvatar/:index:", {id, email, numeroAvatar});
+            console.log("Response /cambiarAvatar/:index:", { id, email, numeroAvatar });
             res.status(200).json(user.numeroAvatar);
 
         } catch (error) {
@@ -113,6 +113,29 @@ const UserRoute = (prisma: PrismaClient) => {
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
         // console.log(token); solo para testear
         res.status(200).json(token);
+    });
+
+    router.delete('/delete-user', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const user = await deleteUserById(prisma, decoded.id);
+
+            if (!user) {
+                const error = "El usuario que intenta eliminar no existe";
+                console.error(error);
+                return res.status(404).json({ error: error });
+            }
+
+            console.log("Response /delete-user:", user);
+            res.status(200).json(user);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            res.status(401).json({ error: error });
+        }
     });
 
     return router;

@@ -34,6 +34,20 @@ const getUserById = async (
     });
 }
 
+const deleteUserById = async (
+    prisma: PrismaClient,
+    userId: number) => {
+    return await prisma.user.update({
+        where: {
+            id: userId,
+            estaEliminado: false
+        },
+        data: {
+            estaEliminado: true
+        }
+    });
+}
+
 
 const cambiarAvatar = async (
     prisma: PrismaClient,
@@ -45,9 +59,9 @@ const cambiarAvatar = async (
             estaEliminado: false
         },
         data: {
-            numeroAvatar : indexAvatar
+            numeroAvatar: indexAvatar
         },
-        
+
     });
 }
 
@@ -74,4 +88,4 @@ const postUser = async (
     }
 }
 
-export { getUsers, getUserById, getUserByEmail, postUser, cambiarAvatar };
+export { getUsers, getUserById, deleteUserById, getUserByEmail, postUser, cambiarAvatar };
