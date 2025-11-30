@@ -15,7 +15,6 @@ const distancia = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   return R * c; // En km
 }
 
-
 // La hicimos con unos compañeros para explicar PBKDF2, pero la simplifiqué
 const hashPassword = async (password: string, salt: string): Promise<string> => {
 

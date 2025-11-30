@@ -148,6 +148,19 @@ const UserRoute = (prisma: PrismaClient) => {
 
             const { coordenadasUsuario, rango } = req.body;
 
+            // console.log(
+            //     "Tipo latitud:", typeof coordenadasUsuario.latitud,
+            //     "Valor:", coordenadasUsuario.latitud
+            // );
+            // console.log(
+            //     "Tipo longitud:", typeof coordenadasUsuario.longitud,
+            //     "Valor:", coordenadasUsuario.longitud
+            // );
+            // console.log(
+            //     "Tipo rango:", typeof rango,
+            //     "Valor:", rango
+            // );
+
             const events = await getEventsFiltered(prisma, coordenadasUsuario, rango);
 
             console.log("Response /:", events);
