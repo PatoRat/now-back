@@ -139,38 +139,37 @@ const UserRoute = (prisma: PrismaClient) => {
     });
 
 
+router.post('/', async (req, res) => {
+    const token = req?.headers?.authorization?.split(" ")[1] || "";
 
-    router.post('/', async (req, res) => {
-        const token = req?.headers?.authorization?.split(" ")[1] || "";
+    try {
+        jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
 
-        try {
-            jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+        const { coordenadasUsuario, rangoMin, rangoMax } = req.body;
 
-            const { coordenadasUsuario, rango } = req.body;
-
-            // console.log(
-            //     "Tipo latitud:", typeof coordenadasUsuario.latitud,
-            //     "Valor:", coordenadasUsuario.latitud
-            // );
-            // console.log(
-            //     "Tipo longitud:", typeof coordenadasUsuario.longitud,
-            //     "Valor:", coordenadasUsuario.longitud
-            // );
-            // console.log(
-            //     "Tipo rango:", typeof rango,
-            //     "Valor:", rango
-            // );
-
-            const events = await getEventsFiltered(prisma, coordenadasUsuario, rango);
-
-            console.log("Response /:", events);
-            res.status(200).json(events);
-
-        } catch (error) {
-            console.error("Acceso no autorizado", error);
-            return res.status(401).json({ error: error });
+        if (
+            !coordenadasUsuario ||
+            typeof rangoMin !== "number" ||
+            typeof rangoMax !== "number"
+        ) {
+            return res.status(400).json({ error: "Parámetros inválidos" });
         }
-    });
+
+        const events = await getEventsFiltered(
+            prisma,
+            coordenadasUsuario,
+            rangoMin,
+            rangoMax
+        );
+
+        console.log("Response /:", events);
+        res.status(200).json(events);
+
+    } catch (error) {
+        console.error("Acceso no autorizado", error);
+        return res.status(401).json({ error: error });
+    }
+});
 
     router.get('/created-by-authorized-user', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";

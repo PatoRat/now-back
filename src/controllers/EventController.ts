@@ -30,12 +30,13 @@ const addFav = async (prisma: PrismaClient, eventId: number, userId: number) => 
         include: { fans: true }
     });
 }
-
 const getEventsFiltered = async (
     prisma: PrismaClient,
     coordenadasUsuario: Coordenadas,
-    rango: number
+    rangoMin: number,
+    rangoMax: number
 ) => {
+
     const eventos = await prisma.event.findMany({
         where: { estaEliminado: false },
         include: {
@@ -52,14 +53,22 @@ const getEventsFiltered = async (
         }
     });
 
-    const eventosFiltrados = eventos.filter(evento => distancia(
-        coordenadasUsuario.latitud,
-        coordenadasUsuario.longitud,
-        evento.ubicacion?.latitud as number,
-        evento.ubicacion?.longitud as number
-    ) < rango); // km
+    const eventosFiltrados = eventos.filter(evento => {
+        if (!evento.ubicacion) return false;
+
+        const d = distancia(
+            coordenadasUsuario.latitud,
+            coordenadasUsuario.longitud,
+            evento.ubicacion.latitud,
+            evento.ubicacion.longitud
+        );
+
+        return d >= rangoMin && d <= rangoMax;
+    });
+
     return eventosFiltrados;
-}
+};
+
 
 const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
     const result = await prisma.ubicacion.findUnique({
