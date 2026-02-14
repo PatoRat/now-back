@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar } from '../controllers/UserController'
+import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -23,8 +23,8 @@ const UserRoute = (prisma: PrismaClient) => {
         try {
 
             const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
-            const {index} = req.params;
-            const user = await cambiarAvatar(prisma, decoded.id,Number(index));
+            const { index } = req.params;
+            const user = await cambiarAvatar(prisma, decoded.id, Number(index));
 
             if (!user) {
                 const error = "El usuario no existe";
@@ -32,15 +32,17 @@ const UserRoute = (prisma: PrismaClient) => {
                 return res.status(404).json({ error: error });
             }
 
-            console.log("Response /cambiarAvatar/:index:", user);
-            res.status(200).json(user);
+            const { id, email, numeroAvatar } = user;
+
+            console.log("Response /cambiarAvatar/:index:", { id, email, numeroAvatar });
+            res.status(200).json(user.numeroAvatar);
 
         } catch (error) {
             console.error("Acceso no autorizado", error);
             res.status(401).json({ error: error });
         }
     });
-    
+
 
     router.get('/my-user', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
@@ -56,15 +58,8 @@ const UserRoute = (prisma: PrismaClient) => {
                 return res.status(404).json({ error: error });
             }
 
-            const result: Omit<typeof user, "contrasenia_hash" | "sal"> = {
-                id: user.id,
-                email: user.email,
-                nombre: user.nombre,
-                numeroAvatar: user.numeroAvatar
-            };
-
-            console.log("Response /my-user:", result);
-            res.status(200).json(result);
+            console.log("Response /my-user:", user);
+            res.status(200).json(user);
 
         } catch (error) {
             console.error("Acceso no autorizado", error);
@@ -108,7 +103,7 @@ const UserRoute = (prisma: PrismaClient) => {
 
         const contraseniaHasheada = await hashPassword(password, user.sal);
 
-        if(user.contrasenia_hash != contraseniaHasheada){
+        if (user.contrasenia_hash != contraseniaHasheada) {
             const error = "Contrasenia incorrecta";
             console.error(error);
             return res.status(401).json({ error: error });
@@ -118,6 +113,29 @@ const UserRoute = (prisma: PrismaClient) => {
         const token = jwt.sign({ id: user?.id }, SECRET_KEY_JWT);
         // console.log(token); solo para testear
         res.status(200).json(token);
+    });
+
+    router.delete('/delete-user', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const user = await deleteUserById(prisma, decoded.id);
+
+            if (!user) {
+                const error = "El usuario que intenta eliminar no existe";
+                console.error(error);
+                return res.status(404).json({ error: error });
+            }
+
+            console.log("Response /delete-user:", user);
+            res.status(200).json(user);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            res.status(401).json({ error: error });
+        }
     });
 
     return router;

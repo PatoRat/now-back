@@ -6,6 +6,7 @@ type Coordenadas = Omit<UbicacionData, "direccion">
 
 const getEvents = async (prisma: PrismaClient) => {
     const events = await prisma.event.findMany({
+        where: { estaEliminado: false },
         include: {
             ubicacion: true, // si querés incluir la ubicación también
             imagenes: true,   // aquí incluís las imágenes
@@ -17,7 +18,10 @@ const getEvents = async (prisma: PrismaClient) => {
 
 const addFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
     return await prisma.event.update({
-        where: { id: eventId },
+        where: {
+            id: eventId,
+            estaEliminado: false
+        },
         data: {
             fans: {
                 connect: { id: userId } // agrega el usuario como fan
@@ -26,9 +30,15 @@ const addFav = async (prisma: PrismaClient, eventId: number, userId: number) => 
         include: { fans: true }
     });
 }
+const getEventsFiltered = async (
+    prisma: PrismaClient,
+    coordenadasUsuario: Coordenadas,
+    rangoMin: number,
+    rangoMax: number
+) => {
 
-const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coordenadas) => {
     const eventos = await prisma.event.findMany({
+        where: { estaEliminado: false },
         include: {
             ubicacion: true,
             imagenes: true,
@@ -43,14 +53,22 @@ const getEventsFiltered = async (prisma: PrismaClient, coordenadasUsuario: Coord
         }
     });
 
-    const eventosFiltrados = eventos.filter(evento => distancia(
-        coordenadasUsuario.latitud,
-        coordenadasUsuario.longitud,
-        evento.ubicacion?.latitud as number,
-        evento.ubicacion?.longitud as number
-    ) < 10); // km
+    const eventosFiltrados = eventos.filter(evento => {
+        if (!evento.ubicacion) return false;
+
+        const d = distancia(
+            coordenadasUsuario.latitud,
+            coordenadasUsuario.longitud,
+            evento.ubicacion.latitud,
+            evento.ubicacion.longitud
+        );
+
+        return d >= rangoMin && d <= rangoMax;
+    });
+
     return eventosFiltrados;
-}
+};
+
 
 const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
     const result = await prisma.ubicacion.findUnique({
@@ -63,7 +81,10 @@ const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
 }
 const getFavsFromUser = async (prisma: PrismaClient, userId: number) => {
     const userWithFavs = await prisma.user.findUnique({
-        where: { id: userId },
+        where: {
+            id: userId,
+            estaEliminado: false
+        },
         include: {
             favs: {
                 include: {
@@ -87,7 +108,10 @@ const getMyEvents = async (
     prisma: PrismaClient,
     creadorId: number) => {
     const result = await prisma.event.findMany({
-        where: { userId: creadorId },
+        where: {
+            userId: creadorId,
+            estaEliminado: false
+        },
         include: {
             ubicacion: true,
             imagenes: true,
@@ -136,7 +160,10 @@ const postEvent = async (
 
 const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
     return prisma.event.update({
-        where: { id: eventId },
+        where: {
+            id: eventId,
+            estaEliminado: false
+        },
         data: {
             fans: {
                 disconnect: { id: userId } // remueve el usuario de fans
@@ -146,7 +173,21 @@ const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) 
     });
 }
 
+const deleteEvent = async (prisma: PrismaClient, eventId: number, userId: number) => {
+    return prisma.event.update({
+        where: {
+            id: eventId,
+            userId: userId,
+            estaEliminado: false
+        },
+        data: {
+            estaEliminado: true
+        },
+    });
+}
+
 export {
+    deleteEvent,
     getEvents,
     getEventsFiltered,
     postEvent,

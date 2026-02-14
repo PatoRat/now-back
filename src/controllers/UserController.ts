@@ -11,7 +11,8 @@ const getUserByEmail = async (
     email: string) => {
     return await prisma.user.findUnique({
         where: {
-            email: email
+            email: email,
+            estaEliminado: false
         }
     });
 }
@@ -21,16 +22,29 @@ const getUserById = async (
     userId: number) => {
     return await prisma.user.findUnique({
         where: {
-            id: userId
+            id: userId,
+            estaEliminado: false
         },
-        // include: {
-        //     favs: {
-        //         include: {
-        //             ubicacion: true,
-        //             imagenes: true
-        //         }
-        //     }
-        // }
+        select: {
+            id: true,
+            email: true,
+            nombre: true,
+            numeroAvatar: true
+        }
+    });
+}
+
+const deleteUserById = async (
+    prisma: PrismaClient,
+    userId: number) => {
+    return await prisma.user.update({
+        where: {
+            id: userId,
+            estaEliminado: false
+        },
+        data: {
+            estaEliminado: true
+        }
     });
 }
 
@@ -41,12 +55,13 @@ const cambiarAvatar = async (
     indexAvatar: number) => {
     return await prisma.user.update({
         where: {
-            id: userId
+            id: userId,
+            estaEliminado: false
         },
         data: {
-            numeroAvatar : indexAvatar
+            numeroAvatar: indexAvatar
         },
-        
+
     });
 }
 
@@ -73,4 +88,4 @@ const postUser = async (
     }
 }
 
-export { getUsers, getUserById, getUserByEmail, postUser, cambiarAvatar };
+export { getUsers, getUserById, deleteUserById, getUserByEmail, postUser, cambiarAvatar };

@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav } from '../controllers/EventController'
+import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav, deleteEvent } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -139,25 +139,37 @@ const UserRoute = (prisma: PrismaClient) => {
     });
 
 
+router.post('/', async (req, res) => {
+    const token = req?.headers?.authorization?.split(" ")[1] || "";
 
-    router.post('/', async (req, res) => {
-        const token = req?.headers?.authorization?.split(" ")[1] || "";
+    try {
+        jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
 
-        try {
-            jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+        const { coordenadasUsuario, rangoMin, rangoMax } = req.body;
 
-            const { coordenadasUsuario } = req.body;
-
-            const events = await getEventsFiltered(prisma, coordenadasUsuario);
-
-            console.log("Response /:", events);
-            res.status(200).json(events);
-
-        } catch (error) {
-            console.error("Acceso no autorizado", error);
-            return res.status(401).json({ error: error });
+        if (
+            !coordenadasUsuario ||
+            typeof rangoMin !== "number" ||
+            typeof rangoMax !== "number"
+        ) {
+            return res.status(400).json({ error: "Parámetros inválidos" });
         }
-    });
+
+        const events = await getEventsFiltered(
+            prisma,
+            coordenadasUsuario,
+            rangoMin,
+            rangoMax
+        );
+
+        console.log("Response /:", events);
+        res.status(200).json(events);
+
+    } catch (error) {
+        console.error("Acceso no autorizado", error);
+        return res.status(401).json({ error: error });
+    }
+});
 
     router.get('/created-by-authorized-user', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
@@ -206,6 +218,34 @@ const UserRoute = (prisma: PrismaClient) => {
 
             console.log("Response /create-my-event:", result);
             res.status(201).json(result);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
+        }
+    });
+
+    router.delete('/delete-event', async (req, res) => {
+        const token = req.headers?.authorization?.split(" ")[1] || "";
+        const { eventId } = req.body;
+
+        try {
+
+            if (!token) throw new Error("No hay token");
+            if (!eventId) throw new Error("eventId es requerido");
+
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            // Remover relación fan/fav
+            const deletedEvent = await deleteEvent(prisma, Number(eventId), userId);
+
+            if (!deletedEvent) {
+                return res.status(400).json({ error: "No se pudo eliminar el evento" });
+            }
+
+            console.log("Response /rem-fav: ", deletedEvent);
+            res.status(200).json({ event: deletedEvent });
 
         } catch (error) {
             console.error("Acceso no autorizado", error);

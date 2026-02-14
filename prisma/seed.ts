@@ -28,8 +28,8 @@ const userData: Prisma.UserCreateInput = {
         fechaFin: new Date("2025-11-02T02:00:00"),
         ubicacion: {
           create: {
-            latitud: -34.6037,
-            longitud: -58.3816,
+            latitud: -34.588607,
+            longitud: -58.39212360000001,
             direccion: "Junín 1787, Buenos Aires"
           }
         }
@@ -48,8 +48,8 @@ const userData: Prisma.UserCreateInput = {
         fechaFin: new Date("2025-11-02T23:00:00"),
         ubicacion: {
           create: {
-            latitud: -34.5880,
-            longitud: -58.4030,
+            latitud: -34.59293554411339,
+            longitud: -58.38951632380486,
             direccion: "Plaza Vicente López, Buenos Aires"
           }
         }
@@ -61,8 +61,8 @@ const userData: Prisma.UserCreateInput = {
         fechaFin: new Date("2025-11-03T22:00:00"),
         ubicacion: {
           create: {
-            latitud: -34.6158,
-            longitud: -58.4333,
+            latitud: -34.6186791,
+            longitud: -58.3651279,
             direccion: "Av. Cabildo 500, Buenos Aires"
           }
         }
