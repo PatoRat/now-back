@@ -10,7 +10,12 @@ const getEvents = async (prisma: PrismaClient) => {
         include: {
             ubicacion: true, // si querés incluir la ubicación también
             imagenes: true,   // aquí incluís las imágenes
-            creador: true
+            creador: true,
+            _count: {
+                select: {
+                    fans: true
+                }
+            }
         }
     });
     return events;
@@ -48,6 +53,11 @@ const getEventsFiltered = async (
                     nombre: true,
                     numeroAvatar: true,
                     email: true
+                }
+            },
+            _count: {
+                select: {
+                    fans: true
                 }
             }
         }
@@ -90,7 +100,12 @@ const getFavsFromUser = async (prisma: PrismaClient, userId: number) => {
                 include: {
                     ubicacion: true,
                     imagenes: true,
-                    creador: true
+                    creador: true,
+                    _count: {
+                        select: {
+                            fans: true
+                        }
+                    }
                 }
             }
         }
@@ -121,6 +136,11 @@ const getMyEvents = async (
                     nombre: true,
                     numeroAvatar: true,
                     email: true
+                }
+            },
+            _count: {
+                select: {
+                    fans: true
                 }
             }
         }

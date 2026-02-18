@@ -17,8 +17,17 @@ const UserRoute = (prisma: PrismaClient) => {
 
             const events = await getEvents(prisma);
 
-            console.log("Response /all:", events);
-            res.status(200).json(events)
+            const eventsMapeo = events.map(event => {
+                const { _count, ...resto } = event;
+
+                return {
+                    ...resto,
+                    likesCont: _count.fans
+                };
+            });
+
+            console.log("Response /all:", eventsMapeo);
+            res.status(200).json(eventsMapeo)
 
         } catch (error) {
             console.error("Acceso no autorizado", error);
@@ -41,8 +50,17 @@ const UserRoute = (prisma: PrismaClient) => {
             // Obtenemos los favoritos del usuario
             const favEvents = await getFavsFromUser(prisma, userId);
 
-            console.log(`Response /favs para usuario ${userId}:`, favEvents);
-            res.status(200).json(favEvents);
+            const favEventsMapeo = favEvents.map(event => {
+                const { _count, ...resto } = event;
+
+                return {
+                    ...resto,
+                    likesCont: _count.fans
+                };
+            });
+
+            console.log(`Response /favs para usuario ${userId}:`, favEventsMapeo);
+            res.status(200).json(favEventsMapeo);
 
         } catch (error) {
             console.error("Acceso no autorizado a /favs", error);
@@ -139,37 +157,46 @@ const UserRoute = (prisma: PrismaClient) => {
     });
 
 
-router.post('/', async (req, res) => {
-    const token = req?.headers?.authorization?.split(" ")[1] || "";
+    router.post('/', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
 
-    try {
-        jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+        try {
+            jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
 
-        const { coordenadasUsuario, rangoMin, rangoMax } = req.body;
+            const { coordenadasUsuario, rangoMin, rangoMax } = req.body;
 
-        if (
-            !coordenadasUsuario ||
-            typeof rangoMin !== "number" ||
-            typeof rangoMax !== "number"
-        ) {
-            return res.status(400).json({ error: "Parámetros inválidos" });
+            if (
+                !coordenadasUsuario ||
+                typeof rangoMin !== "number" ||
+                typeof rangoMax !== "number"
+            ) {
+                return res.status(400).json({ error: "Parámetros inválidos" });
+            }
+
+            const events = await getEventsFiltered(
+                prisma,
+                coordenadasUsuario,
+                rangoMin,
+                rangoMax
+            );
+
+            const eventsMapeo = events.map(event => {
+                const { _count, ...resto } = event;
+
+                return {
+                    ...resto,
+                    likesCont: _count.fans
+                };
+            });
+
+            console.log("Response /:", eventsMapeo);
+            res.status(200).json(eventsMapeo);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
         }
-
-        const events = await getEventsFiltered(
-            prisma,
-            coordenadasUsuario,
-            rangoMin,
-            rangoMax
-        );
-
-        console.log("Response /:", events);
-        res.status(200).json(events);
-
-    } catch (error) {
-        console.error("Acceso no autorizado", error);
-        return res.status(401).json({ error: error });
-    }
-});
+    });
 
     router.get('/created-by-authorized-user', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
@@ -177,7 +204,17 @@ router.post('/', async (req, res) => {
         try {
             const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
             const result = await getMyEvents(prisma, decoded.id);// aprovecho que firmo el id
-            console.log("Response /created-by-authorized-user:", result);
+
+            const resultMapeo = result.map(event => {
+                const { _count, ...resto } = event;
+
+                return {
+                    ...resto,
+                    likesCont: _count.fans
+                };
+            });
+
+            console.log("Response /created-by-authorized-user:", resultMapeo);
             res.status(201).json(result);
 
         } catch (error) {
