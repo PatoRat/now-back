@@ -45,7 +45,10 @@ const getEventsFiltered = async (
 ) => {
 
     const eventos = await prisma.event.findMany({
-        where: { estaEliminado: false },
+        where: {
+            estaEliminado: false,
+            fechaFin: { gte: new Date() } // en curso o futuros
+        },
         include: {
             ubicacion: true,
             imagenes: true,
