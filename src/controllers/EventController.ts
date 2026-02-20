@@ -8,16 +8,23 @@ const getEvents = async (prisma: PrismaClient) => {
     const events = await prisma.event.findMany({
         where: { estaEliminado: false },
         include: {
-            ubicacion: true, // si querés incluir la ubicación también
-            imagenes: true,   // aquí incluís las imágenes
-            creador: true,
+            ubicacion: true,
+            imagenes: true,
+            creador: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    numeroAvatar: true,
+                },
+            },
             _count: {
                 select: {
                     fans: true
                 }
             }
-        }
+        },
     });
+
     return events;
 }
 
@@ -43,7 +50,10 @@ const getEventsFiltered = async (
 ) => {
 
     const eventos = await prisma.event.findMany({
-        where: { estaEliminado: false },
+        where: {
+            estaEliminado: false,
+            fechaFin: { gte: new Date() } // en curso o futuros
+        },
         include: {
             ubicacion: true,
             imagenes: true,
