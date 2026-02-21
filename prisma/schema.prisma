@@ -1,6 +1,6 @@
 datasource db {
   provider = "sqlite"
-  // url = env("DATABASE_URL") // Parece no necesitar mas esto
+  url = env("DATABASE_URL") // Parece no necesitar mas esto
 }
 
 generator client {
@@ -17,6 +17,8 @@ model User {
   estaEliminado    Boolean @default(false)
   mis_eventos      Event[] @relation("EventosCreados")
   favs             Event[] @relation("EventosFavoritos")
+  following        Follow[] @relation("UserFollowing")
+  followers        Follow[] @relation("UserFollowers")
 }
 
 model Event {
@@ -46,4 +48,15 @@ model Ubicacion {
   longitud  Float
   direccion String
   evento    Event  @relation(fields: [eventId], references: [id])
+}
+
+model Follow {
+  id          Int  @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+
+  follower    User @relation("UserFollowing", fields: [followerId], references: [id])
+  following   User @relation("UserFollowers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
 }

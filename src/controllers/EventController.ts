@@ -216,6 +216,114 @@ const deleteEvent = async (prisma: PrismaClient, eventId: number, userId: number
     });
 }
 
+const followUser = async (
+    prisma: PrismaClient,
+    currentUserId: number,
+    targetUserId: number
+) => {
+
+    if (currentUserId === targetUserId) {
+        throw new Error("No puedes seguirte a ti mismo");
+    }
+
+    const target = await prisma.user.findUnique({
+        where: { id: targetUserId }
+    });
+
+    if (!target || target.estaEliminado) {
+        throw new Error("Usuario no válido");
+    }
+
+    await prisma.follow.create({
+        data: {
+            followerId: currentUserId,
+            followingId: targetUserId
+        }
+    });
+
+    return { success: true };
+};
+
+const unfollowUser = async (
+    prisma: PrismaClient,
+    currentUserId: number,
+    targetUserId: number
+) => {
+
+    await prisma.follow.delete({
+        where: {
+            followerId_followingId: {
+                followerId: currentUserId,
+                followingId: targetUserId
+            }
+        }
+    });
+
+    return { success: true };
+};
+
+const getUserProfile = async (
+    prisma: PrismaClient,
+    currentUserId: number,
+    targetUserId: number
+) => {
+
+    const user = await prisma.user.findUnique({
+        where: { id: targetUserId },
+        select: {
+            id: true,
+            nombre: true,
+            numeroAvatar: true,
+            estaEliminado: true,
+            _count: {
+                select: {
+                    followers: true,
+                    following: true
+                }
+            }
+        }
+    });
+
+    if (!user || user.estaEliminado) {
+        throw new Error("Usuario no encontrado");
+    }
+
+    const isFollowing = await prisma.follow.findUnique({
+        where: {
+            followerId_followingId: {
+                followerId: currentUserId,
+                followingId: targetUserId
+            }
+        }
+    });
+
+    return {
+        id: user.id,
+        nombre: user.nombre,
+        numeroAvatar: user.numeroAvatar,
+        followersCount: user._count.followers,
+        followingCount: user._count.following,
+        isFollowing: !!isFollowing
+    };
+};
+
+const getMyFollowingIds = async (
+    prisma: PrismaClient,
+    currentUserId: number
+) => {
+
+    const following = await prisma.follow.findMany({
+        where: {
+            followerId: currentUserId
+        },
+        select: {
+            followingId: true
+        }
+    });
+
+    return following.map(f => f.followingId);
+};
+
 export {
     deleteEvent,
     getEvents,
@@ -225,5 +333,9 @@ export {
     getMyEvents,
     getFavsFromUser,
     addFav,
-    removeFav
+    removeFav,
+    followUser,
+    unfollowUser,
+    getUserProfile,
+    getMyFollowingIds
 };
