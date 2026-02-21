@@ -262,49 +262,34 @@ const unfollowUser = async (
     return { success: true };
 };
 
-const getUserProfile = async (
+const getUserEvents = async (
     prisma: PrismaClient,
-    currentUserId: number,
-    targetUserId: number
-) => {
-
-    const user = await prisma.user.findUnique({
-        where: { id: targetUserId },
-        select: {
-            id: true,
-            nombre: true,
-            numeroAvatar: true,
-            estaEliminado: true,
+    userId: number) => {
+    const result = await prisma.event.findMany({
+        where: {
+            userId: userId,
+            estaEliminado: false
+        },
+        include: {
+            ubicacion: true,
+            imagenes: true,
+            creador: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    numeroAvatar: true,
+                    email: true
+                }
+            },
             _count: {
                 select: {
-                    followers: true,
-                    following: true
+                    fans: true
                 }
             }
         }
     });
-
-    if (!user || user.estaEliminado) {
-        throw new Error("Usuario no encontrado");
-    }
-
-    const isFollowing = await prisma.follow.findUnique({
-        where: {
-            followerId_followingId: {
-                followerId: currentUserId,
-                followingId: targetUserId
-            }
-        }
-    });
-
-    return {
-        id: user.id,
-        nombre: user.nombre,
-        numeroAvatar: user.numeroAvatar,
-        followersCount: user._count.followers,
-        followingCount: user._count.following,
-        isFollowing: !!isFollowing
-    };
+    console.log("Eventos del usuario", result);
+    return result;
 };
 
 const getMyFollowingIds = async (
@@ -336,6 +321,6 @@ export {
     removeFav,
     followUser,
     unfollowUser,
-    getUserProfile,
+    getUserEvents,
     getMyFollowingIds
 };

@@ -1,9 +1,10 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav, deleteEvent, getMyFollowingIds } from '../controllers/EventController'
+import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav, deleteEvent, getMyFollowingIds, getUserEvents } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
+import { getUserById } from "../controllers/UserController";
 
 
 const UserRoute = (prisma: PrismaClient) => {
@@ -239,6 +240,51 @@ const UserRoute = (prisma: PrismaClient) => {
         } catch (error) {
             console.error("Acceso no autorizado", error);
             return res.status(401).json({ error: error });
+        }
+    });
+
+    router.get('/get-user-posts/:userId', async (req, res) => {
+        const { userId } = req.params;
+
+        try {
+            const events = await getUserEvents(prisma,  Number(userId)); // función que obtiene eventos de un userId
+
+            const eventsMapeo = events.map(event => {
+                const { _count, ...resto } = event;
+                return { ...resto, likesCont: _count.fans };
+            });
+
+            console.log(`Response /created-by-user/${userId}:`, eventsMapeo);
+            res.status(200).json(eventsMapeo);
+
+        } catch (error) {
+            console.error(`Error trayendo eventos del usuario ${userId}:`, error);
+            return res.status(404).json({ error: "No se pudieron traer los eventos del usuario" });
+        }
+    });
+
+    
+
+    router.get('/get-user/:userId', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+            console.log("Decoded del token en /get-user/:userId");
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const user = await getUserEvents(prisma, Number(decoded.id));
+
+            if (!user) {
+                const error = "El usuario no existe";
+                console.error(error);
+                return res.status(404).json({ error: error });
+            }
+
+            console.log("Response /my-user:", user);
+            res.status(200).json(user);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            res.status(401).json({ error: error });
         }
     });
 
