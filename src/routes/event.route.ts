@@ -87,60 +87,6 @@ const UserRoute = (prisma: PrismaClient) => {
         }
     });
 
-    router.post('/follow/:targetUserId', async (req, res) => {
-        const token = req?.headers?.authorization?.split(" ")[1] || "";
-
-        try {
-            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
-            const userId = decoded.id;
-
-            const targetUserId = Number(req.params.targetUserId);
-
-            await prisma.follow.upsert({
-                where: {
-                    followerId_followingId: {
-                        followerId: userId,
-                        followingId: targetUserId
-                    }
-                },
-                update: {},
-                create: {
-                    followerId: userId,
-                    followingId: targetUserId
-                }
-            });
-
-            res.status(200).json({ message: "Followed successfully" });
-
-        } catch (error) {
-            console.error("Error following user", error);
-            res.status(500).json({ error: "Error following user" });
-        }
-    });
-
-    router.delete('/follow/:targetUserId', async (req, res) => {
-        const token = req?.headers?.authorization?.split(" ")[1] || "";
-
-        try {
-            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
-            const userId = decoded.id;
-
-            const targetUserId = Number(req.params.targetUserId);
-
-            await prisma.follow.deleteMany({
-                where: {
-                    followerId: userId,
-                    followingId: targetUserId
-                }
-            });
-
-            res.status(200).json({ message: "Unfollowed successfully" });
-
-        } catch (error) {
-            console.error("Error unfollowing user", error);
-            res.status(500).json({ error: "Error unfollowing user" });
-        }
-    });
 
     // ACA BBUSCAMOS SI TIENE LIKE
     router.get('/check-like/:eventId', async (req, res) => {
