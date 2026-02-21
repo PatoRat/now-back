@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav, deleteEvent } from '../controllers/EventController'
+import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav, deleteEvent, getMyFollowingIds } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -68,6 +68,79 @@ const UserRoute = (prisma: PrismaClient) => {
         }
     });
 
+    // ACA HACEMOS FOLLOW Y UNFOLLOW, Y TAMBIEN OBTENEMOS LOS IDS DE LOS USUARIOS QUE SIGUE EL USUARIO AUTENTICADO
+
+    router.get('/following', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const followingIds = await getMyFollowingIds(prisma, userId);
+
+            res.status(200).json(followingIds);
+
+        } catch (error) {
+            console.error("Acceso no autorizado a /following", error);
+            return res.status(401).json({ error: "Acceso no autorizado" });
+        }
+    });
+
+    router.post('/follow/:targetUserId', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const targetUserId = Number(req.params.targetUserId);
+
+            await prisma.follow.upsert({
+                where: {
+                    followerId_followingId: {
+                        followerId: userId,
+                        followingId: targetUserId
+                    }
+                },
+                update: {},
+                create: {
+                    followerId: userId,
+                    followingId: targetUserId
+                }
+            });
+
+            res.status(200).json({ message: "Followed successfully" });
+
+        } catch (error) {
+            console.error("Error following user", error);
+            res.status(500).json({ error: "Error following user" });
+        }
+    });
+
+    router.delete('/follow/:targetUserId', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const targetUserId = Number(req.params.targetUserId);
+
+            await prisma.follow.deleteMany({
+                where: {
+                    followerId: userId,
+                    followingId: targetUserId
+                }
+            });
+
+            res.status(200).json({ message: "Unfollowed successfully" });
+
+        } catch (error) {
+            console.error("Error unfollowing user", error);
+            res.status(500).json({ error: "Error unfollowing user" });
+        }
+    });
 
     // ACA BBUSCAMOS SI TIENE LIKE
     router.get('/check-like/:eventId', async (req, res) => {
