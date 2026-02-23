@@ -1,3 +1,19 @@
+# NOW App
+
+## Configuracion:
+Deberá crear un archivo ".env" el cual tendrá el siguiente codigo:
+``sh
+     PORT=3000
+     DATABASE_URL=file:./dev.db
+     SUPPORT_EMAIL=now.app.soporte@gmail.com
+     SUPPORT_PASSWORD=gbdgstvtxxyfohvm
+
+
+
+
+
+
+
 # REST API Example with Express & Prisma Postgres
 
 This example shows how to implement a **REST API with TypeScript** using [Express](https://expressjs.com/), Prisma ORM and a [Prisma Postgres](https://www.prisma.io/postgres) database.
