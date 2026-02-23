@@ -11,7 +11,8 @@ import {
     removeFav,
     deleteEvent,
     getEventById,
-    findFav
+    findFav,
+    getMyFollowingIds
 } from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -80,6 +81,58 @@ const EventRoute = (prisma: PrismaClient) => {
             return res.status(401).json({ error: "Acceso no autorizado" });
         }
     });
+
+    // ACA HACEMOS FOLLOW Y UNFOLLOW, Y TAMBIEN OBTENEMOS LOS IDS DE LOS USUARIOS QUE SIGUE EL USUARIO AUTENTICADO
+
+    router.get('/following', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const followingIds = await getMyFollowingIds(prisma, userId);
+
+            res.status(200).json(followingIds);
+
+        } catch (error) {
+            console.error("Acceso no autorizado a /following", error);
+            return res.status(401).json({ error: "Acceso no autorizado" });
+        }
+    });
+
+
+    // ACA BBUSCAMOS SI TIENE LIKE
+    router.get('/check-like/:eventId', async (req, res) => {
+        const token = req.headers?.authorization?.split(" ")[1] || "";
+        const { eventId } = req.params;
+
+        try {
+            if (!token) throw new Error("No hay token");
+
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const eventWithFanCheck = await prisma.event.findUnique({
+                where: { id: Number(eventId) },
+                include: {
+                    fans: true,
+                },
+            });
+
+            const userLiked = eventWithFanCheck?.fans.some(fan => fan.id === userId) || false;
+
+            res.status(200).json(
+                userLiked
+            );
+
+        } catch (error) {
+            console.error("Error buscando like:", error);
+            res.status(400).json({ error: "No se pudo buscar el like" });
+        }
+    });
+
+
 
     // PARAAAA AGREGAR A FAVORITOS
     router.post('/add-fav', async (req, res) => {

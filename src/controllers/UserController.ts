@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { UserData } from "../../scripts/types";
 import { hashPassword, randomSalt } from "../../scripts/funciones";
 import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -39,6 +40,12 @@ const sendSupportMail = async (
     }
 };
 
+
+const prisma = new PrismaClient();
+
+type TokenPayload = {
+  id: number;
+};
 const getUsers = async (prisma: PrismaClient) => {
     return await prisma.user.findMany();
 }
@@ -125,6 +132,78 @@ const postUser = async (
     }
 }
 
+const getUserProfileById = async (
+    prisma: PrismaClient,
+    currentUserId: number,
+    targetUserId: number
+) => {
+
+    const user = await prisma.user.findUnique({
+        where: { id: targetUserId, estaEliminado: false },
+        include: {
+            _count: {
+                select: {
+                    followers: true,
+                    following: true,
+                    mis_eventos: {
+                        where: { estaEliminado: false }
+                    }
+                }
+            },
+            mis_eventos: {
+                where: { estaEliminado: false },
+                include: {
+                    imagenes: true
+                },
+                orderBy: {
+                    fechaInicio: "desc"
+                }
+            },
+            followers: {
+                where: { followerId: currentUserId }
+            }
+        }
+    });
+
+    if (!user) return null;
+
+    return {
+        id: user.id,
+        nombre: user.nombre,
+        numeroAvatar: user.numeroAvatar,
+        followersCount: user._count.followers,
+        followingCount: user._count.following,
+        eventsCount: user._count.mis_eventos,
+        isFollowing: user.followers.length > 0,
+        eventos: user.mis_eventos
+    };
+};
+
+const getUserFromToken = async (token: string) => {
+  if (!token) {
+    throw new Error("Token requerido");
+  }
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as TokenPayload;
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id, estaEliminado: false }
+    });
+
+    if (!user) {
+      throw new Error("Usuario no encontrado");
+    }
+
+    return user;
+
+  } catch (error) {
+    throw new Error("Token inválido");
+  }
+};
 export {
     getUsers,
     getUserById,
@@ -132,5 +211,6 @@ export {
     getUserByEmail,
     postUser,
     cambiarAvatar,
-    sendSupportMail
+    sendSupportMail,
+    getUserProfileById
 };

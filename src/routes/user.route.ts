@@ -1,10 +1,11 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById, sendSupportMail } from '../controllers/UserController'
+import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById, sendSupportMail, getUserProfileById } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
 import { hashPassword } from "../../scripts/funciones";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const UserRoute = (prisma: PrismaClient) => {
     const router = Router();
@@ -162,6 +163,85 @@ const UserRoute = (prisma: PrismaClient) => {
             res.status(500).json({ ok: false });
         }
     });
+    
+    router.post('/follow/:targetUserId', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const targetUserId = Number(req.params.targetUserId);
+
+            await prisma.follow.upsert({
+                where: {
+                    followerId_followingId: {
+                        followerId: userId,
+                        followingId: targetUserId
+                    }
+                },
+                update: {},
+                create: {
+                    followerId: userId,
+                    followingId: targetUserId
+                }
+            });
+
+            console.log("Response /follow:", targetUserId);
+            res.status(200).json({ message: "Followed successfully" });
+
+        } catch (error) {
+            console.error("Error following user", error);
+            res.status(500).json({ error: "Error following user" });
+        }
+    });
+
+    router.delete('/unfollow/:targetUserId', async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const targetUserId = Number(req.params.targetUserId);
+
+            await prisma.follow.deleteMany({
+                where: {
+                    followerId: userId,
+                    followingId: targetUserId
+                }
+            });
+
+            console.log("Response /unfollow:", targetUserId);
+            res.status(200).json({ message: "Unfollowed successfully" });
+
+        } catch (error) {
+            console.error("Error unfollowing user", error);
+            res.status(500).json({ error: "Error unfollowing user" });
+        }
+    });
+
+    router.get(
+        "/:userId/profile",
+        authMiddleware,
+        async (req, res) => {
+
+            const currentUser = (req as any).user;
+            const targetUserId = Number(req.params.userId);
+
+            const profile = await getUserProfileById(
+                prisma,
+                currentUser.id,
+                targetUserId
+            );
+
+            if (!profile) {
+                return res.status(404).json({ error: "Usuario no encontrado" });
+            }
+
+            res.status(200).json(profile);
+        }
+    );
 
     return router;
 }

@@ -18,6 +18,8 @@ model User {
   mis_eventos      Event[]   @relation("EventosCreados")
   favs             Event[]   @relation("EventosFavoritos")
   reportes         Reporte[] @relation("ReportesCreados")
+  following        Follow[] @relation("UserFollowing")
+  followers        Follow[] @relation("UserFollowers")
 }
 
 model Event {
@@ -60,4 +62,15 @@ model Reporte {
   descripcion     String
   fecha           DateTime @default(now())
   estado          String
+}
+
+model Follow {
+  id          Int  @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+
+  follower    User @relation("UserFollowing", fields: [followerId], references: [id])
+  following   User @relation("UserFollowers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
 }
