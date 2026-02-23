@@ -1,10 +1,11 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById } from '../controllers/UserController'
+import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById, getUserProfileById } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
 import { hashPassword } from "../../scripts/funciones";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const UserRoute = (prisma: PrismaClient) => {
     const router = Router();
@@ -186,7 +187,7 @@ const UserRoute = (prisma: PrismaClient) => {
                     followingId: targetUserId
                 }
             });
-            
+
             console.log("Response /unfollow:", targetUserId);
             res.status(200).json({ message: "Unfollowed successfully" });
 
@@ -195,6 +196,28 @@ const UserRoute = (prisma: PrismaClient) => {
             res.status(500).json({ error: "Error unfollowing user" });
         }
     });
+    
+    router.get(
+        "/:userId/profile",
+        authMiddleware,
+        async (req, res) => {
+
+            const currentUser = (req as any).user;
+            const targetUserId = Number(req.params.userId);
+
+            const profile = await getUserProfileById(
+                prisma,
+                currentUser.id,
+                targetUserId
+            );
+
+            if (!profile) {
+                return res.status(404).json({ error: "Usuario no encontrado" });
+            }
+
+            res.status(200).json(profile);
+        }
+    );
 
     return router;
 }
