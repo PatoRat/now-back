@@ -1,6 +1,6 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById } from '../controllers/UserController'
+import { getUsers, postUser, getUserById, getUserByEmail, cambiarAvatar, deleteUserById, sendSupportMail } from '../controllers/UserController'
 import { UserData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
@@ -135,6 +135,31 @@ const UserRoute = (prisma: PrismaClient) => {
         } catch (error) {
             console.error("Acceso no autorizado", error);
             res.status(401).json({ error: error });
+        }
+    });
+
+    router.post("/support", async (req, res) => {
+        const token = req?.headers?.authorization?.split(" ")[1] || "";
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+
+            const user = await getUserById(prisma, decoded.id);
+
+            if (!user) {
+                const error = "El usuario no existe";
+                console.error(error);
+                return res.status(404).json({ error: error });
+            }
+
+            // console.log("\n\n###LLEGUE AL REQUEST SUPPORT DEL BACK, ROute###\n\n")
+
+            await sendSupportMail(user.nombre, user.email);
+
+            res.status(200).json({ ok: true });
+
+        } catch (error) {
+            res.status(500).json({ ok: false });
         }
     });
 

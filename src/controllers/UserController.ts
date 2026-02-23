@@ -1,6 +1,43 @@
 import { PrismaClient } from "@prisma/client";
 import { UserData } from "../../scripts/types";
 import { hashPassword, randomSalt } from "../../scripts/funciones";
+import nodemailer from "nodemailer";
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.SUPPORT_EMAIL,
+        pass: process.env.SUPPORT_PASSWORD
+    }
+});
+
+const sendSupportMail = async (
+    nombre: string,
+    email: string
+) => {
+    try {
+        // console.log("\n\n###LLEGUE AL REQUEST SUPPORT DEL BACK, CONTROller###\n\n");
+        // console.log("EMAIL:", process.env.SUPPORT_EMAIL);
+        // console.log("PASS:", process.env.SUPPORT_PASSWORD);
+        await transporter.sendMail({
+            from: process.env.SUPPORT_EMAIL,
+            to: email,
+            subject: "Nueva solicitud de soporte",
+            text: `
+            Usuario: ${nombre}
+            Email: ${email}
+
+            Mensaje:
+            El usuario solicita soporte, comunicarse con ese email
+        `
+        });
+
+        console.log("Email enviado.")
+    }
+    catch (error) {
+        console.error("Error enviando email:", error);
+    }
+};
 
 const getUsers = async (prisma: PrismaClient) => {
     return await prisma.user.findMany();
@@ -88,4 +125,12 @@ const postUser = async (
     }
 }
 
-export { getUsers, getUserById, deleteUserById, getUserByEmail, postUser, cambiarAvatar };
+export {
+    getUsers,
+    getUserById,
+    deleteUserById,
+    getUserByEmail,
+    postUser,
+    cambiarAvatar,
+    sendSupportMail
+};
