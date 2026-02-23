@@ -8,11 +8,10 @@ Deberá crear un archivo ".env" el cual tendrá el siguiente codigo:
      SUPPORT_EMAIL=now.app.soporte@gmail.com
      SUPPORT_PASSWORD=gbdgstvtxxyfohvm
 
+En caso de ser necesario, hacer "npx prisma migrate dev" o "npx prisma migrate reset"
 
-
-
-
-
+[espacio][espacio]
+[espacio][espacio]
 
 # REST API Example with Express & Prisma Postgres
 
