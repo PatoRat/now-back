@@ -1,6 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import { ReportData } from "../../scripts/types";
 
+const getReports = async (prisma: PrismaClient) => {
+    const reportes = await prisma.reporte.findMany({
+        where: { estado: "Pendiente" }
+    });
+    return reportes;
+}
+
 const postReport = async (
     prisma: PrismaClient,
     datos: ReportData,
@@ -26,5 +33,5 @@ const postReport = async (
 }
 
 export {
-    postReport
+    postReport, getReports
 };
