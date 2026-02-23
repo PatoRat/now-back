@@ -6,7 +6,7 @@ const postReport = async (
     datos: ReportData,
     creadorId: number) => {
     try {
-        const result = await prisma.report.create({
+        const result = await prisma.reporte.create({
             data: {
                 eventoReportado: { connect: { id: datos.eventId } },
                 motivo: datos.motivo,
