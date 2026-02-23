@@ -32,8 +32,8 @@ const getEvents = async (prisma: PrismaClient) => {
 const getEventById = async (prisma: PrismaClient, eventId: number) => {
     // console.log("\n\n\neventId en controller:", eventId);
     // console.log("#############################");
-    const event = await prisma.event.findUnique({
-        where: { id: eventId },
+    const event = await prisma.event.findFirst({
+        where: { id: eventId, estaEliminado: false },
         include: {
             ubicacion: true, // si querés incluir la ubicación también
             imagenes: true,   // aquí incluís las imágenes
