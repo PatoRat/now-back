@@ -10,7 +10,14 @@ const getEvents = async (prisma: PrismaClient) => {
         include: {
             ubicacion: true, // si querés incluir la ubicación también
             imagenes: true,   // aquí incluís las imágenes
-            creador: true,
+            creador: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    numeroAvatar: true,
+                    email: true
+                }
+            },
             _count: {
                 select: {
                     fans: true
@@ -19,6 +26,32 @@ const getEvents = async (prisma: PrismaClient) => {
         }
     });
     return events;
+}
+
+const getEventById = async (prisma: PrismaClient, eventId: number) => {
+    // console.log("\n\n\neventId en controller:", eventId);
+    // console.log("#############################");
+    const event = await prisma.event.findUnique({
+        where: { id: eventId },
+        include: {
+            ubicacion: true, // si querés incluir la ubicación también
+            imagenes: true,   // aquí incluís las imágenes
+            creador: {
+                select: {
+                    id: true,
+                    nombre: true,
+                    numeroAvatar: true,
+                    email: true
+                }
+            },
+            _count: {
+                select: {
+                    fans: true
+                }
+            }
+        }
+    });
+    return event;
 }
 
 const addFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
@@ -89,6 +122,16 @@ const getUbicacionFromEvent = async (prisma: PrismaClient, eventId: number) => {
     }
     return result;
 }
+
+const findFav = async (prisma: PrismaClient, eventId: number) => {
+    return await prisma.event.findUnique({
+        where: { id: eventId },
+        include: {
+            fans: true,
+        },
+    });
+}
+
 const getFavsFromUser = async (prisma: PrismaClient, userId: number) => {
     const userWithFavs = await prisma.user.findUnique({
         where: {
@@ -179,7 +222,7 @@ const postEvent = async (
 }
 
 const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) => {
-    return prisma.event.update({
+    return await prisma.event.update({
         where: {
             id: eventId,
             estaEliminado: false
@@ -194,7 +237,7 @@ const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) 
 }
 
 const deleteEvent = async (prisma: PrismaClient, eventId: number, userId: number) => {
-    return prisma.event.update({
+    return await prisma.event.update({
         where: {
             id: eventId,
             userId: userId,
@@ -215,5 +258,7 @@ export {
     getMyEvents,
     getFavsFromUser,
     addFav,
-    removeFav
+    removeFav,
+    getEventById,
+    findFav
 };
