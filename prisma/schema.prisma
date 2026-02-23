@@ -1,6 +1,6 @@
 datasource db {
   provider = "sqlite"
-  // url = env("DATABASE_URL") // Parece no necesitar mas esto
+  url = env("DATABASE_URL")
 }
 
 generator client {
@@ -8,29 +8,31 @@ generator client {
 }
 
 model User {
-  id               Int     @id @default(autoincrement())
-  email            String  @unique
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
   nombre           String
   contrasenia_hash String
   sal              String
   numeroAvatar     Int
-  estaEliminado    Boolean @default(false)
-  mis_eventos      Event[] @relation("EventosCreados")
-  favs             Event[] @relation("EventosFavoritos")
+  estaEliminado    Boolean   @default(false)
+  mis_eventos      Event[]   @relation("EventosCreados")
+  favs             Event[]   @relation("EventosFavoritos")
+  reportes         Reporte[] @relation("ReportesCreados")
 }
 
 model Event {
-  id          Int              @id @default(autoincrement())
-  titulo      String
-  descripcion String
-  ubicacion   Ubicacion? //ver como se aplica
-  imagenes    ImagenDeEvento[] //ver como se aplica
-  fechaInicio DateTime
-  fechaFin    DateTime
-  creador     User?            @relation("EventosCreados", fields: [userId], references: [id])
-  userId      Int?
-  fans        User[]           @relation("EventosFavoritos")
-  estaEliminado    Boolean @default(false)
+  id            Int              @id @default(autoincrement())
+  titulo        String
+  descripcion   String
+  ubicacion     Ubicacion?
+  imagenes      ImagenDeEvento[]
+  fechaInicio   DateTime
+  fechaFin      DateTime
+  creador       User?            @relation("EventosCreados", fields: [userId], references: [id])
+  userId        Int?
+  fans          User[]           @relation("EventosFavoritos")
+  reportes      Reporte[]        @relation("EventosReportados")
+  estaEliminado Boolean          @default(false)
 }
 
 model ImagenDeEvento {
@@ -46,4 +48,16 @@ model Ubicacion {
   longitud  Float
   direccion String
   evento    Event  @relation(fields: [eventId], references: [id])
+}
+
+model Reporte {
+  id              Int      @id @default(autoincrement())
+  usuarioEmisor   User     @relation("ReportesCreados", fields: [userId], references: [id])
+  userId          Int
+  eventoReportado Event    @relation("EventosReportados", fields: [eventId], references: [id])
+  eventId         Int
+  motivo          String
+  descripcion     String
+  fecha           DateTime @default(now())
+  estado          String
 }

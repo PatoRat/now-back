@@ -241,6 +241,7 @@ const removeFav = async (prisma: PrismaClient, eventId: number, userId: number) 
 }
 
 const deleteEvent = async (prisma: PrismaClient, eventId: number, userId: number) => {
+    // console.log("\n\n\n#############PRINCIPIO CONTROLLER###############\n\n\n");
     return await prisma.event.update({
         where: {
             id: eventId,

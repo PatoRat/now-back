@@ -231,6 +231,7 @@ const EventRoute = (prisma: PrismaClient) => {
     });
 
     router.delete('/delete-event', async (req, res) => {
+        // console.log("\n\n\n##########PRINCIPIO ROUTE###########\n\n\n");
         const token = req.headers?.authorization?.split(" ")[1] || "";
         const { eventId } = req.body;
 
@@ -249,7 +250,7 @@ const EventRoute = (prisma: PrismaClient) => {
                 return res.status(400).json({ error: "No se pudo eliminar el evento" });
             }
 
-            console.log("Response /rem-fav: ", deletedEvent);
+            console.log("Response /delete-event: ", deletedEvent);
             res.status(200).json({ event: deletedEvent });
 
         } catch (error) {

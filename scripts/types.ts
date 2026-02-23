@@ -19,4 +19,12 @@ type UserData = {
     numeroAvatar: number,
 };
 
-export { EventData, UserData, UbicacionData }
+type ReportData = {
+    eventId: number,
+    motivo: string,
+    descripcion: string,
+    fecha: Date,
+    estado: "Pendiente" | "Aprobado" | "Denegado"
+};
+
+export { EventData, UserData, UbicacionData, ReportData }
