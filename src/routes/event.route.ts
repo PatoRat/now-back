@@ -4,6 +4,7 @@ import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postE
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
+import { getUserById } from "../controllers/UserController";
 
 
 const UserRoute = (prisma: PrismaClient) => {
@@ -308,6 +309,33 @@ const UserRoute = (prisma: PrismaClient) => {
             return res.status(401).json({ error: error });
         }
     });
+
+    router.get("/following", async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1] || "";
+    
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+    if (!userId) return res.status(401).json({ error: "No autorizado" });
+
+    try {
+        const eventos = await prisma.event.findMany({
+            where: {
+                estaEliminado: false,
+                userId: {
+                    in: (await prisma.follow.findMany({
+                        where: { followerId: userId },
+                        select: { followingId: true }
+                    })).map(f => f.followingId)
+                },
+                NOT: { userId: userId } // excluye propios
+            },
+            include: { creador: true, ubicacion: true, imagenes: true },
+        });
+        res.json(eventos);
+    } catch (error) {
+        res.status(500).json({ error: "Error trayendo eventos" });
+    }
+});
 
     return router;
 }
