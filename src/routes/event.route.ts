@@ -1,12 +1,25 @@
 import { type PrismaClient } from "@prisma/client"
 import { Router } from "express"
-import { getEvents, getEventsFiltered, getMyEvents, getUbicacionFromEvent, postEvent, getFavsFromUser, addFav, removeFav, deleteEvent } from '../controllers/EventController'
+import {
+    getEvents,
+    getEventsFiltered,
+    getMyEvents,
+    getUbicacionFromEvent,
+    postEvent,
+    getFavsFromUser,
+    addFav,
+    removeFav,
+    deleteEvent,
+    getEventById,
+    findFav
+} from '../controllers/EventController'
 import { EventData } from "../../scripts/types";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { SECRET_KEY_JWT } from "../../config";
+import { error } from "console";
 
 
-const UserRoute = (prisma: PrismaClient) => {
+const EventRoute = (prisma: PrismaClient) => {
     const router = Router();
 
     router.get('/all', async (req, res) => {
@@ -67,39 +80,6 @@ const UserRoute = (prisma: PrismaClient) => {
             return res.status(401).json({ error: "Acceso no autorizado" });
         }
     });
-
-
-    // ACA BBUSCAMOS SI TIENE LIKE
-    router.get('/check-like/:eventId', async (req, res) => {
-        const token = req.headers?.authorization?.split(" ")[1] || "";
-        const { eventId } = req.params;
-
-        try {
-            if (!token) throw new Error("No hay token");
-
-            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
-            const userId = decoded.id;
-
-            const eventWithFanCheck = await prisma.event.findUnique({
-                where: { id: Number(eventId) },
-                include: {
-                    fans: true,
-                },
-            });
-
-            const userLiked = eventWithFanCheck?.fans.some(fan => fan.id === userId) || false;
-
-            res.status(200).json(
-                userLiked
-            );
-
-        } catch (error) {
-            console.error("Error buscando like:", error);
-            res.status(400).json({ error: "No se pudo buscar el like" });
-        }
-    });
-
-
 
     // PARAAAA AGREGAR A FAVORITOS
     router.post('/add-fav', async (req, res) => {
@@ -223,19 +203,7 @@ const UserRoute = (prisma: PrismaClient) => {
         }
     });
 
-    router.get('/ubicacion/:eventId', async (req, res) => {
-        const { eventId } = req.params;
-
-        try {
-            const result = await getUbicacionFromEvent(prisma, Number(eventId));
-            console.log(`Response /ubicacion/${eventId}`, result);
-            res.status(200).json(result);
-
-        } catch (error) {
-            console.error("No encontró esa id.", error);
-            res.status(404).json(error);
-        }
-    });
+    
 
     router.post('/create-my-event', async (req, res) => {
         const token = req?.headers?.authorization?.split(" ")[1] || "";
@@ -290,7 +258,77 @@ const UserRoute = (prisma: PrismaClient) => {
         }
     });
 
+    // ACA BBUSCAMOS SI TIENE LIKE
+    router.get('/check-like/:eventId', async (req, res) => {
+        const token = req.headers?.authorization?.split(" ")[1] || "";
+        const { eventId } = req.params;
+
+        try {
+            if (!token) throw new Error("No hay token");
+
+            const decoded = jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+            const userId = decoded.id;
+
+            const eventWithFanCheck = await findFav(prisma, Number(eventId));
+
+            const userLiked = eventWithFanCheck?.fans.some(fan => fan.id === userId) || false;
+
+            res.status(200).json(
+                userLiked
+            );
+
+        } catch (error) {
+            console.error("Error buscando like:", error);
+            res.status(400).json({ error: "No se pudo buscar el like" });
+        }
+    });
+
+    router.get('/ubicacion/:eventId', async (req, res) => {
+        const { eventId } = req.params;
+
+        try {
+            const result = await getUbicacionFromEvent(prisma, Number(eventId));
+            console.log(`Response /ubicacion/${eventId}`, result);
+            res.status(200).json(result);
+
+        } catch (error) {
+            console.error("No encontró esa id.", error);
+            res.status(404).json(error);
+        }
+    });
+
+    router.get('/buscar-evento/:eventId', async (req, res) => {
+        const token = req.headers?.authorization?.split(" ")[1] || "";
+        const { eventId } = req.params;
+
+        // console.log("\n\n\neventId en route:", eventId);
+        // console.log("#############################");
+
+        try {
+            jwt.verify(token, SECRET_KEY_JWT) as JwtPayload;
+
+            const event = await getEventById(prisma, Number(eventId));
+
+            if (!event) return res.status(404).json({ error: "No se encontró tal evento." });
+
+            const { _count, ...resto } = event;
+
+            const eventMapeo = {
+                ...resto,
+                likesCont: _count.fans
+            };
+
+            console.log(`Response /buscar-evento/${eventId}:`, eventMapeo);
+            res.status(200).json(eventMapeo);
+
+        } catch (error) {
+            console.error("Acceso no autorizado", error);
+            return res.status(401).json({ error: error });
+        }
+
+    });
+
     return router;
 }
 
-export default UserRoute;
+export default EventRoute;
