@@ -2,7 +2,7 @@
 
 ## Configuracion:
 Deberá crear un archivo ".env" el cual tendrá el siguiente codigo:
-``sh
+     
      PORT=3000
      DATABASE_URL=file:./dev.db
      SUPPORT_EMAIL=now.app.soporte@gmail.com
