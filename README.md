@@ -6,7 +6,6 @@ Deberá crear un archivo ".env" el cual tendrá el siguiente codigo:
      PORT=3000
      DATABASE_URL=file:./dev.db
      SUPPORT_EMAIL=now.app.soporte@gmail.com
-     SUPPORT_PASSWORD=gbdgstvtxxyfohvm
 
 En caso de ser necesario, hacer "npx prisma migrate dev" o "npx prisma migrate reset"
 
